@@ -428,7 +428,7 @@ uint8_t get_prach_fmt(uint8_t prach_ConfigIndex,lte_frame_type_t frame_type)
   }
 }
 
-uint8_t get_prach_prb_offset(LTE_DL_FRAME_PARMS *frame_parms, uint8_t tdd_mapindex, uint16_t Nf) 
+uint8_t get_prach_prb_offset(LTE_DL_FRAME_PARMS *frame_parms, uint8_t tdd_mapindex, uint16_t Nf)
 {
   lte_frame_type_t frame_type         = frame_parms->frame_type;
   uint8_t tdd_config         = frame_parms->tdd_config;
@@ -650,7 +650,7 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
     ue->rx_offset,
     ue->hw_timing_advance,
     ue->N_TA_offset);
-  
+
 #endif
 
 
@@ -658,7 +658,9 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
   if (restricted_set == 0) {
     if (Ncs_config > 15) {
       LOG_E( PHY, "[PHY] FATAL, Illegal Ncs_config for unrestricted format %"PRIu8"\n", Ncs_config );
+#if !defined MEX
       mac_xface->macphy_exit("PRACH: Illegal Ncs_config for unrestricted format");
+#endif
       return 0; // not reached
     }
 
@@ -666,7 +668,9 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
   } else {
     if (Ncs_config > 14) {
       LOG_E( PHY, "[PHY] FATAL, Illegal Ncs_config for restricted format %"PRIu8"\n", Ncs_config );
+#if !defined MEX
       mac_xface->macphy_exit("PRACH: Illegal Ncs_config for restricted format");
+#endif
       return 0; // not reached
     }
 
@@ -997,7 +1001,7 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
     break;
 
   case 100:
-    if (ue->frame_parms.threequarter_fs == 0) { 
+    if (ue->frame_parms.threequarter_fs == 0) {
       if (prach_fmt == 4) {
 	idft4096(prachF,prach2,1);
 	memmove( prach, prach+8192, Ncp<<2 );
@@ -1006,7 +1010,7 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
 	idft24576(prachF,prach2);
 	memmove( prach, prach+49152, Ncp<<2 );
 	prach_len = 24576+Ncp;
-	
+
 	if (prach_fmt>1) {
 	  memmove( prach2+49152, prach2, 98304 );
 	  prach_len = 2* 24576+Ncp;
@@ -1028,7 +1032,7 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
 	  memmove( prach2+36834, prach2, 73728 );
 	  prach_len = 2*18432+Ncp;
 	}
-      } 
+      }
     }
 
     break;
@@ -1038,7 +1042,9 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
 
   if (prach_fmt==4) {
     LOG_E( PHY, "prach_fmt4 not fully implemented" );
+#if !defined MEX
     mac_xface->macphy_exit("prach_fmt4 not fully implemented");
+#endif
     return 0; // not reached
   } else {
 #if defined(EXMIMO) || defined(OAI_USRP)
@@ -1067,7 +1073,7 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
     }
 #endif
 #else
-    
+
     for (i=0; i<prach_len; i++) {
       ((int16_t*)(&ue->common_vars.txdata[0][prach_start]))[2*i] = prach[2*i];
       ((int16_t*)(&ue->common_vars.txdata[0][prach_start]))[2*i+1] = prach[2*i+1];
@@ -1089,9 +1095,9 @@ int32_t generate_prach( PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint1
 //__m128i mmtmpX0,mmtmpX1,mmtmpX2,mmtmpX3;
 
 void rx_prach(PHY_VARS_eNB *eNB,
-	      uint16_t *preamble_energy_list, 
-	      uint16_t *preamble_delay_list, 
-	      uint16_t Nf, 
+	      uint16_t *preamble_energy_list,
+	      uint16_t *preamble_delay_list,
+	      uint16_t Nf,
 	      uint8_t tdd_mapindex)
 {
 
@@ -1142,7 +1148,9 @@ void rx_prach(PHY_VARS_eNB *eNB,
   if (restricted_set == 0) {
     if (Ncs_config>15) {
       LOG_E(PHY,"FATAL, Illegal Ncs_config for unrestricted format %d\n",Ncs_config);
+#if !defined MEX
       mac_xface->macphy_exit("PRACH Illegal Ncs_config for unrestricted format");
+#endif
       return; // not reached
     }
 
@@ -1150,7 +1158,9 @@ void rx_prach(PHY_VARS_eNB *eNB,
   } else {
     if (Ncs_config>14) {
       LOG_E(PHY,"FATAL, Illegal Ncs_config for restricted format %d\n",Ncs_config);
+#if !defined MEX
       mac_xface->macphy_exit("PRACH Illegal Ncs_config for restricted format");
+#endif
       return; // not reached
     }
 
@@ -1227,7 +1237,7 @@ void rx_prach(PHY_VARS_eNB *eNB,
     // Do forward transform
     for (aa=0; aa<nb_ant_rx; aa++) {
       prach2 = prach[aa] + (Ncp<<1);
-  
+
       // do DFT
       switch (eNB->frame_parms.N_RB_UL) {
       case 6:
@@ -1235,25 +1245,25 @@ void rx_prach(PHY_VARS_eNB *eNB,
 	  dft256(prach2,rxsigF[aa],1);
 	} else {
 	  dft1536(prach2,rxsigF[aa],1);
-	  
+
 	  if (prach_fmt>1)
 	    dft1536(prach2+3072,rxsigF[aa]+3072,1);
 	}
-	
+
 	break;
-	
+
       case 15:
 	if (prach_fmt == 4) {
 	  dft256(prach2,rxsigF[aa],1);
 	} else {
 	  dft3072(prach2,rxsigF[aa]);
-	  
+
 	  if (prach_fmt>1)
 	    dft3072(prach2+6144,rxsigF[aa]+6144);
 	}
-	
+
 	break;
-	
+
       case 25:
       default:
 	if (prach_fmt == 4) {
@@ -1261,46 +1271,46 @@ void rx_prach(PHY_VARS_eNB *eNB,
 	  fft_size = 1024;
 	} else {
 	  dft6144(prach2,rxsigF[aa]);
-	  
+
 	  if (prach_fmt>1)
 	    dft6144(prach2+12288,rxsigF[aa]+12288);
-	  
+
 	  fft_size = 6144;
 	}
-	
+
 	break;
-	
+
       case 50:
 	if (prach_fmt == 4) {
 	  dft2048(prach2,rxsigF[aa],1);
 	} else {
 	  dft12288(prach2,rxsigF[aa]);
-	  
+
 	  if (prach_fmt>1)
 	    dft12288(prach2+24576,rxsigF[aa]+24576);
 	}
-	
+
 	break;
-	
+
       case 75:
 	if (prach_fmt == 4) {
 	  dft3072(prach2,rxsigF[aa]);
 	} else {
 	  dft18432(prach2,rxsigF[aa]);
-	  
+
 	  if (prach_fmt>1)
 	    dft18432(prach2+36864,rxsigF[aa]+36864);
 	}
-	
+
 	break;
-	
+
       case 100:
 	if (eNB->frame_parms.threequarter_fs==0) {
 	  if (prach_fmt == 4) {
 	    dft4096(prach2,rxsigF[aa],1);
 	  } else {
 	    dft24576(prach2,rxsigF[aa]);
-	    
+
 	    if (prach_fmt>1)
 	      dft24576(prach2+49152,rxsigF[aa]+49152);
 	  }
@@ -1309,12 +1319,12 @@ void rx_prach(PHY_VARS_eNB *eNB,
 	    dft3072(prach2,rxsigF[aa]);
 	  } else {
 	    dft18432(prach2,rxsigF[aa]);
-	    
+
 	    if (prach_fmt>1)
 	      dft18432(prach2+36864,rxsigF[aa]+36864);
 	  }
 	}
-	
+
 	break;
       }
     }
@@ -1322,16 +1332,16 @@ void rx_prach(PHY_VARS_eNB *eNB,
 
   if (eNB->node_function == NGFI_RRU_IF4p5) {
     k = (12*n_ra_prb) - 6*eNB->frame_parms.N_RB_UL;
-    
+
     if (k<0) {
       k+=(eNB->frame_parms.ofdm_symbol_size);
     }
 
     k*=12;
-    k+=13; 
+    k+=13;
     k*=2;
-    
-    /// **** send_IF4 of rxsigF to RCC **** ///    
+
+    /// **** send_IF4 of rxsigF to RCC **** ///
     send_IF4p5(eNB, eNB->proc.frame_prach, eNB->proc.subframe_prach, IF4p5_PRACH, k);
 
 #if 0
@@ -1357,16 +1367,16 @@ void rx_prach(PHY_VARS_eNB *eNB,
     return;
   } else if (eNB->node_function == NGFI_RCC_IF4p5) {
     k = (12*n_ra_prb) - 6*eNB->frame_parms.N_RB_UL;
-    
+
     if (k<0) {
       k+=(eNB->frame_parms.ofdm_symbol_size);
     }
 
     k*=12;
-    k+=13; 
+    k+=13;
     k*=2;
 
-    // Adjust received rxsigF offset    
+    // Adjust received rxsigF offset
     memmove((&rxsigF[0][k]),
             (&rxsigF[0][0]),
             839*2*sizeof(int16_t));
@@ -1392,7 +1402,7 @@ void rx_prach(PHY_VARS_eNB *eNB,
 #endif
 
   }
-  
+
   // in case of RCC and prach received rx_thread wakes up prach
 
   // here onwards is for eNodeB_3GPP or NGFI_RCC_IF4p5
@@ -1403,17 +1413,17 @@ void rx_prach(PHY_VARS_eNB *eNB,
     if (restricted_set == 0) {
       // This is the relative offset in the root sequence table (5.7.2-4 from 36.211) for the given preamble index
       preamble_offset = ((NCS==0)? preamble_index : (preamble_index/(N_ZC/NCS)));
-      
+
       if (preamble_offset != preamble_offset_old) {
         preamble_offset_old = preamble_offset;
         new_dft = 1;
         // This is the \nu corresponding to the preamble index
         preamble_shift  = 0;
       }
-      
+
       else {
         preamble_shift  -= NCS;
-	
+
         if (preamble_shift < 0)
           preamble_shift+=N_ZC;
       }
@@ -1491,26 +1501,26 @@ void rx_prach(PHY_VARS_eNB *eNB,
     if (new_dft == 1) {
       new_dft = 0;
       Xu=(int16_t*)eNB->X_u[preamble_offset-first_nonzero_root_idx];
-      
 
 
-      
+
+
       k = (12*n_ra_prb) - 6*eNB->frame_parms.N_RB_UL;
-      
+
       if (k<0)
 	k+=(eNB->frame_parms.ofdm_symbol_size);
-      
+
       k*=12;
       k+=13; // phi + K/2
       //      k+=(12*eNB->frame_parms.first_carrier_offset);
       //      if (k>(12*eNB->frame_parms.ofdm_symbol_size))
       //  k-=(12*eNB->frame_parms.ofdm_symbol_size);
-      
+
       // printf("First prach carrier : k %d\n",k);
       k*=2;
-      
 
-      
+
+
       memset( prachF, 0, sizeof(int16_t)*2*1024 );
 #ifdef PRACH_DEBUG
       write_output("prach_rx0.m","prach_rx0",prach[0],6144+792,1,1);
@@ -1521,7 +1531,7 @@ void rx_prach(PHY_VARS_eNB *eNB,
 
       for (aa=0;aa<nb_ant_rx; aa++) {
       // Do componentwise product with Xu*
-	
+
 	for (offset=0; offset<(N_ZC<<1); offset+=2) {
 	  prachF[offset]   = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][k]   + (int32_t)Xu[offset+1]*rxsigF[aa][k+1])>>15);
 	  prachF[offset+1] = (int16_t)(((int32_t)Xu[offset]*rxsigF[aa][k+1] - (int32_t)Xu[offset+1]*rxsigF[aa][k])>>15);
@@ -1542,11 +1552,11 @@ void rx_prach(PHY_VARS_eNB *eNB,
 	    *(__m128i*)&prachF[offset] = _mm_packs_epi32(mmtmpX2,mmtmpX3);
 	    */
 	  k+=2;
-	  
+
 	  if (k==(12*2*eNB->frame_parms.ofdm_symbol_size))
 	    k=0;
 	}
-	
+
 	// Now do IFFT of size 1024 (N_ZC=839) or 256 (N_ZC=139)
 	if (N_ZC == 839) {
 	  log2_ifft_size = 10;
@@ -1565,10 +1575,10 @@ void rx_prach(PHY_VARS_eNB *eNB,
 
       if (en>40) {
 	k = (12*n_ra_prb) - 6*eNB->frame_parms.N_RB_UL;
-	
+
 	if (k<0)
 	  k+=(eNB->frame_parms.ofdm_symbol_size);
-	
+
 	k*=12;
 	k+=13;
 	k*=2;
@@ -1580,20 +1590,20 @@ void rx_prach(PHY_VARS_eNB *eNB,
       }
 #endif
     } // new dft
-    
+
     // check energy in nth time shift
     preamble_shift2 = ((preamble_shift==0) ? 0 : ((preamble_shift<<log2_ifft_size)/N_ZC));
     preamble_energy_list[preamble_index] = 0;
-    
+
     for (i=0; i<NCS2; i++) {
       lev = 0;
-      
+
       for (aa=0; aa<nb_ant_rx; aa++) {
 	lev += (int32_t)prach_ifft[aa][(preamble_shift2+i)<<1]*prach_ifft[aa][(preamble_shift2+i)<<1] + (int32_t)prach_ifft[aa][1+((preamble_shift2+i)<<1)]*prach_ifft[aa][1+((preamble_shift2+i)<<1)];
       }
-     
+
       levdB = dB_fixed_times10(lev);
-      
+
       if (levdB>preamble_energy_list[preamble_index] ) {
 	preamble_energy_list[preamble_index]  = levdB;
 	preamble_delay_list[preamble_index]   = (i*fft_size)>>log2_ifft_size;
@@ -1606,9 +1616,9 @@ void rx_prach(PHY_VARS_eNB *eNB,
 #endif
 
   }// preamble_index
-  
+
   stop_meas(&eNB->rx_prach);
-  
+
 }
 
 void init_prach_tables(int N_ZC)
@@ -1662,7 +1672,9 @@ void compute_prach_seq(PRACH_CONFIG_COMMON *prach_config_common,
   uint16_t n_shift_ra,n_shift_ra_bar, d_start,numshift;
   uint8_t not_found;
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_UE_COMPUTE_PRACH, VCD_FUNCTION_IN);
+#endif
 
 #ifdef PRACH_DEBUG
   LOG_I(PHY,"compute_prach_seq: NCS_config %d, prach_fmt %d\n",prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig, prach_fmt);
@@ -1670,7 +1682,9 @@ void compute_prach_seq(PRACH_CONFIG_COMMON *prach_config_common,
 
   if (prach_fmt>=4) {
     LOG_E( PHY, "PRACH sequence is only precomputed for prach_fmt<4 (have %"PRIu8")\n", prach_fmt );
+#if !defined MEX
     mac_xface->macphy_exit("PRACH sequence is only precomputed for prach_fmt<4");
+#endif
     return; // not reached
   }
 
@@ -1697,7 +1711,9 @@ void compute_prach_seq(PRACH_CONFIG_COMMON *prach_config_common,
 
     if (prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig>15) {
       LOG_E( PHY, "FATAL, Illegal Ncs_config for unrestricted format %"PRIu8"\n", prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig );
+#if !defined MEX
       mac_xface->macphy_exit("PRACH Illegal Ncs_config for unrestricted format");
+#endif
       return; // not reached
     } else {
       NCS = NCS_unrestricted[prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig];
@@ -1716,7 +1732,9 @@ void compute_prach_seq(PRACH_CONFIG_COMMON *prach_config_common,
 
     if (prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig>14) {
       LOG_E( PHY, "FATAL, Illegal Ncs_config for restricted format %"PRIu8"\n", prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig );
+#if !defined MEX
       mac_xface->macphy_exit("PRACH Illegal Ncs_config for restricted format");
+#endif
       return; // not reached
     } else {
       NCS = NCS_restricted[prach_config_common->prach_ConfigInfo.zeroCorrelationZoneConfig];
@@ -1804,6 +1822,8 @@ void compute_prach_seq(PRACH_CONFIG_COMMON *prach_config_common,
     }
   }
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_UE_COMPUTE_PRACH, VCD_FUNCTION_OUT);
+#endif
 
 }

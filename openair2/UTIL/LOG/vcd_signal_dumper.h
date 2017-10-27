@@ -149,7 +149,7 @@ typedef enum {
   VCD_SIGNAL_DUMPER_VARIABLES_UE0_SFN7,
   VCD_SIGNAL_DUMPER_VARIABLES_SEND_IF4_SYMBOL,
   VCD_SIGNAL_DUMPER_VARIABLES_RECV_IF4_SYMBOL,
-  VCD_SIGNAL_DUMPER_VARIABLES_SEND_IF5_PKT_ID,  
+  VCD_SIGNAL_DUMPER_VARIABLES_SEND_IF5_PKT_ID,
   VCD_SIGNAL_DUMPER_VARIABLES_RECV_IF5_PKT_ID,
   VCD_SIGNAL_DUMPER_VARIABLES_UE_PDCP_FLUSH_SIZE,
   VCD_SIGNAL_DUMPER_VARIABLES_UE_PDCP_FLUSH_ERR,
@@ -185,7 +185,7 @@ typedef enum {
   VCD_SIGNAL_DUMPER_FUNCTIONS_UE_LOCK_MUTEX_RXTX_FOR_CNT_INCREMENT0,
   VCD_SIGNAL_DUMPER_FUNCTIONS_UE_LOCK_MUTEX_RXTX_FOR_CNT_INCREMENT1,
 
-  /* RRH signals  */ 
+  /* RRH signals  */
   VCD_SIGNAL_DUMPER_FUNCTIONS_eNB_TX,
   VCD_SIGNAL_DUMPER_FUNCTIONS_eNB_RX,
   VCD_SIGNAL_DUMPER_FUNCTIONS_eNB_TRX,
@@ -350,7 +350,7 @@ typedef enum {
   VCD_SIGNAL_DUMPER_FUNCTIONS_ITTI_DUMP_ENQUEUE_MESSAGE_MALLOC,
   VCD_SIGNAL_DUMPER_FUNCTIONS_ITTI_RELAY_THREAD,
   VCD_SIGNAL_DUMPER_FUNCTIONS_TEST,
-  
+
   /* IF4/IF5 signals */
   VCD_SIGNAL_DUMPER_FUNCTIONS_SEND_IF4,
   VCD_SIGNAL_DUMPER_FUNCTIONS_RECV_IF4,
@@ -409,9 +409,9 @@ void vcd_signal_dumper_dump_variable_by_name(vcd_signal_dump_variables variable_
  * @param Name Function name to dump (see the corresponding enum)
  * @param State: either VCD_FUNCTION_START or VCD_FUNCTION_END
  */
+#if !defined MEX
 void vcd_signal_dumper_dump_function_by_name(vcd_signal_dump_functions  function_name,
     vcd_signal_dump_in_out     function_in_out);
-
 extern int ouput_vcd;
 
 #if T_TRACER
@@ -444,3 +444,4 @@ extern int ouput_vcd;
 
 #endif /* !defined (VCD_SIGNAL_DUMPER_H_) */
 
+#endif /* !defined (MEX) */

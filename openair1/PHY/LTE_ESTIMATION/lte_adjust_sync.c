@@ -46,8 +46,9 @@ void lte_adjust_synch(LTE_DL_FRAME_PARMS *frame_parms,
   int diff;
   short Re,Im,ncoef;
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_UE_ADJUST_SYNCH, VCD_FUNCTION_IN);
-
+#endif
   ncoef = 32767 - coef;
 
 #ifdef DEBUG_PHY
@@ -101,7 +102,9 @@ void lte_adjust_synch(LTE_DL_FRAME_PARMS *frame_parms,
           if (ue->mac_enabled==1) {
               LOG_I(PHY,"[UE%d] Sending synch status to higher layers\n",ue->Mod_id);
               //mac_resynch();
+#if !defined MEX
               mac_xface->dl_phy_sync_success(ue->Mod_id,ue->proc.proc_rxtx[0].frame_rx,0,1);//ue->common_vars.eNb_id);
+#endif
               ue->UE_mode[0] = PRACH;
           }
           else {
@@ -130,8 +133,9 @@ void lte_adjust_synch(LTE_DL_FRAME_PARMS *frame_parms,
               temp,max_val,
               (frame_parms->nb_prefix_samples>>3));
       #endif //DEBUG_PHY
-
+#if !defined MEX
       VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_UE_ADJUST_SYNCH, VCD_FUNCTION_OUT);
+#endif
   }
 }
 

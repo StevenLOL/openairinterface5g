@@ -37,10 +37,10 @@
 #include "PHY/defs.h"
 #include "PHY/extern.h"
 #include "SCHED/defs.h"
-#include "SIMULATION/TOOLS/defs.h" // for taus 
+#include "SIMULATION/TOOLS/defs.h" // for taus
 #include "PHY/sse_intrin.h"
 
-#include "assertions.h" 
+#include "assertions.h"
 #include "T.h"
 
 //#define DEBUG_DCI_ENCODING 1
@@ -152,7 +152,7 @@ uint16_t extract_crc(uint8_t *dci,uint8_t dci_len)
   //  dci[(dci_len>>3)+1] = 0;
   //  dci[(dci_len>>3)+2] = 0;
   return((uint16_t)crc16);
-  
+
 }
 
 
@@ -466,7 +466,7 @@ void pdcch_deinterleaving(LTE_DL_FRAME_PARMS *frame_parms,uint16_t *z, uint16_t 
     wptr[1] = wptr2[1];
     wptr[2] = wptr2[2];
     wptr[3] = wptr2[3];
-    /*    
+    /*
     printf("pdcch_deinterleaving (%p,%p): quad %d (%d) -> (%d,%d %d,%d %d,%d %d,%d)\n",wptr,wptr2,i,(i+frame_parms->Nid_cell)%Mquad,
 	   ((char*)wptr2)[0],
 	   ((char*)wptr2)[1],
@@ -505,7 +505,7 @@ void pdcch_deinterleaving(LTE_DL_FRAME_PARMS *frame_parms,uint16_t *z, uint16_t 
         zptr[2] = wptr[2];
         zptr[3] = wptr[3];
 
-	/*        
+	/*
         printf("deinterleaving ; k %d, index-Nd %d  => (%d,%d,%d,%d,%d,%d,%d,%d)\n",k,(index-ND),
                ((int8_t *)wptr)[0],
                ((int8_t *)wptr)[1],
@@ -526,7 +526,7 @@ void pdcch_deinterleaving(LTE_DL_FRAME_PARMS *frame_parms,uint16_t *z, uint16_t 
 
   for (i=0; i<Mquad; i++) {
     zptr = &z[i<<2];
-    /*    
+    /*
     printf("deinterleaving ; quad %d  => (%d,%d,%d,%d,%d,%d,%d,%d)\n",i,
      ((int8_t *)zptr)[0],
      ((int8_t *)zptr)[1],
@@ -536,7 +536,7 @@ void pdcch_deinterleaving(LTE_DL_FRAME_PARMS *frame_parms,uint16_t *z, uint16_t 
      ((int8_t *)zptr)[5],
      ((int8_t *)zptr)[6],
      ((int8_t *)zptr)[7]);
-    */  
+    */
   }
 
 }
@@ -1499,7 +1499,7 @@ void pdcch_channel_compensation(int32_t **rxdataF_ext,
       dl_ch128_2    = (__m128i *)&dl_ch_estimates_ext[2+aarx][symbol*frame_parms->N_RB_DL*12];
 
 #elif defined(__arm__)
-      
+
 #endif
       for (rb=0; rb<frame_parms->N_RB_DL; rb++) {
 #if defined(__x86_64__) || defined(__i386__)
@@ -2100,7 +2100,7 @@ void pdcch_unscrambling(LTE_DL_FRAME_PARMS *frame_parms,
       reset = 0;
     }
 
-    
+
     //    printf("unscrambling %d : e %d, c %d => ",i,llr[i],((s>>(i&0x1f))&1));
     if (((s>>(i%32))&1)==0)
       llr[i] = -llr[i];
@@ -2303,7 +2303,7 @@ uint8_t generate_dci_top(int num_dci,
 
 
     for (i=0; i<Msymb2; i++) {
-      
+
       //((int16_t*)(&(y[0][i])))[0] = (*e_ptr == 1) ? -gain_lin_QPSK : gain_lin_QPSK;
       //((int16_t*)(&(y[1][i])))[0] = (*e_ptr == 1) ? -gain_lin_QPSK : gain_lin_QPSK;
       ((int16_t*)(&(y[0][i])))[0] = (*e_ptr == 2) ? 0 : (*e_ptr == 1) ? -gain_lin_QPSK : gain_lin_QPSK;
@@ -2692,15 +2692,15 @@ uint16_t get_nCCE_mac(uint8_t Mod_id,uint8_t CC_id,int num_pdcch_symbols,int sub
   // check for eNB only !
   return(get_nCCE(num_pdcch_symbols,
 		  &PHY_vars_eNB_g[Mod_id][CC_id]->frame_parms,
-		  get_mi(&PHY_vars_eNB_g[Mod_id][CC_id]->frame_parms,subframe))); 
+		  get_mi(&PHY_vars_eNB_g[Mod_id][CC_id]->frame_parms,subframe)));
 }
 
 
 int get_nCCE_offset_l1(int *CCE_table,
-		       const unsigned char L, 
-		       const int nCCE, 
-		       const int common_dci, 
-		       const unsigned short rnti, 
+		       const unsigned char L,
+		       const int nCCE,
+		       const int common_dci,
+		       const unsigned short rnti,
 		       const unsigned char subframe)
 {
 
@@ -2730,7 +2730,7 @@ int get_nCCE_offset_l1(int *CCE_table,
           break;
         }
       }
-     
+
       if (search_space_free == 1) {
 
 	//	printf("returning %d\n",m*L);
@@ -2897,7 +2897,9 @@ void dci_decoding_procedure0(LTE_UE_PDCCH **pdcch_vars,
       CCEmap = CCEmap2;
     else {
       LOG_E(PHY,"Illegal CCEind %d (Yk %d, m %d, nCCE %d, L2 %d\n",CCEind,Yk,m,nCCE,L2);
+#if !defined MEX
       mac_xface->macphy_exit("Illegal CCEind\n");
+#endif
       return; // not reached
     }
 
@@ -2920,7 +2922,9 @@ void dci_decoding_procedure0(LTE_UE_PDCCH **pdcch_vars,
 
     default:
       LOG_E( PHY, "Illegal L2 value %d\n", L2 );
+#if !defined MEX
       mac_xface->macphy_exit( "Illegal L2\n" );
+#endif
       return; // not reached
     }
 
@@ -3057,7 +3061,7 @@ void dci_decoding_procedure0(LTE_UE_PDCCH **pdcch_vars,
          return;
       } // rnti match
     }  // CCEmap_cand == 0
-/*    
+/*
 	if ( agregationLevel != 0xFF &&
         (format_c == format0 && m==0 && si_rnti != SI_RNTI))
     {

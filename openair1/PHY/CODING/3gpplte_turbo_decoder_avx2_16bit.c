@@ -602,7 +602,7 @@ void compute_beta16avx2(llr_t* alpha,llr_t* beta,llr_t *m_11,llr_t* m_10,uint16_
 
     for (k=(frame_length>>3)-1; k>=loopval; k--) {
 
-      
+
       b4 = _mm256_load_si256(&beta_ptr[4]);
       b5 = _mm256_load_si256(&beta_ptr[5]);
       b6 = _mm256_load_si256(&beta_ptr[6]);
@@ -813,7 +813,7 @@ void compute_ext16avx2(llr_t* alpha,llr_t* beta,llr_t* m_11,llr_t* m_10,llr_t* e
     print_shorts("m01_1:",(int16_t*)&m01_1);
 
 
-#endif    
+#endif
 
     alpha_ptr+=8;
     beta_ptr+=8;
@@ -848,10 +848,10 @@ void init_td16avx2()
     base_interleaver=il_tb+f1f2mat[ind].beg_index;
 #ifdef MEX
     // This is needed for the Mex implementation to make the memory persistent
-    pi2tab16[ind] = mxMalloc((n+8)*sizeof(int));
-    pi5tab16[ind] = mxMalloc((n+8)*sizeof(int));
-    pi4tab16[ind] = mxMalloc((n+8)*sizeof(int));
-    pi6tab16[ind] = mxMalloc((n+8)*sizeof(int));
+    pi2tab16avx2[ind] = mxMalloc((n+8)*sizeof(int));
+    pi5tab16avx2[ind] = mxMalloc((n+8)*sizeof(int));
+    pi4tab16avx2[ind] = mxMalloc((n+8)*sizeof(int));
+    pi6tab16avx2[ind] = mxMalloc((n+8)*sizeof(int));
 #else
     pi2tab16avx2[ind] = malloc((n+8)*sizeof(int));
     pi5tab16avx2[ind] = malloc((n+8)*sizeof(int));
@@ -868,7 +868,7 @@ void init_td16avx2()
         //    if (j>=n)
         //      j-=(n-1);
 
-        pi2tab16avx2[ind][i]  = ((j>>3)<<4) + (j&7); // 16*floor(j/8) + j mod8, which allows the second codeword to be in pi[i] + 8 
+        pi2tab16avx2[ind][i]  = ((j>>3)<<4) + (j&7); // 16*floor(j/8) + j mod8, which allows the second codeword to be in pi[i] + 8
 	//	fprintf(fdavx2,"pi2[%d] = %d(%d)\n",i, pi2tab16avx2[ind][i],j);
       }
     }
@@ -1113,7 +1113,7 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
   yp=(llr_t*)yp128;
   yp_cw2=(llr_t*)yp128_cw2;
 #else
-  
+
   pi2_p    = &pi2tab16avx2[iind][0];
   for (i=0,j=0; i<n; i++) {
     s[*pi2_p]     = y[j];
@@ -1122,7 +1122,7 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
     yp1[*pi2_p+8] = y2[j++];
     yp2[*pi2_p]   = y[j];
     yp2[(*pi2_p++)+8] = y2[j++];
-  }    
+  }
   yp=(llr_t*)&y[j];
   yp_cw2=(llr_t*)&y2[j];
 #endif
@@ -1186,7 +1186,7 @@ unsigned char phy_threegpplte_turbo_decoder16avx2(int16_t *y,
     fprintf(fdavx2,"\n*******************ITERATION %d (n %d), ext %p\n\n",iteration_cnt,n,ext);
     fprintf(fdavx2b,"\n*******************ITERATION %d (n %d), ext %p\n\n",iteration_cnt,n,ext);
 #endif //DEBUG_LOGMAP
- 
+
     start_meas(intl1_stats);
 
     pi4_p=pi4tab16avx2[iind];

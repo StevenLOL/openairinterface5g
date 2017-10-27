@@ -153,7 +153,7 @@ int generate_eNB_ulsch_params_from_rar(unsigned char *rar_pdu,
 
 
   ulsch->Msg3_active = 1;
-	      
+
   get_Msg3_alloc(frame_parms,
 		 subframe,
 		 frame,
@@ -185,8 +185,9 @@ int generate_ue_ulsch_params_from_rar(PHY_VARS_UE *ue,
                                       unsigned char eNB_id )
 {
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_PROCEDURES_UE_TX_ULSCH_RAR,VCD_FUNCTION_IN);
-
+#endif
   //  RA_HEADER_RAPID *rarh = (RA_HEADER_RAPID *)rar_pdu;
   uint8_t transmission_mode = ue->transmission_mode[eNB_id];
   unsigned char *rar_pdu = ue->dlsch_ra[eNB_id]->harq_processes[0]->b;
@@ -313,11 +314,13 @@ int generate_ue_ulsch_params_from_rar(PHY_VARS_UE *ue,
   }
 
   // initialize power control based on PRACH power
+#if !defined MEX
   ulsch->f_pusch = delta_PUSCH_msg2[ulsch->harq_processes[harq_pid]->TPC] +
                    mac_xface->get_deltaP_rampup(ue->Mod_id,ue->CC_id);
   LOG_D(PHY,"[UE %d][PUSCH PC] Initializing f_pusch to %d dB, TPC %d (delta_PUSCH_msg2 %d dB), deltaP_rampup %d dB\n",
         ue->Mod_id,ulsch->f_pusch,ulsch->harq_processes[harq_pid]->TPC,delta_PUSCH_msg2[ulsch->harq_processes[harq_pid]->TPC],
         mac_xface->get_deltaP_rampup(ue->Mod_id,ue->CC_id));
+#endif
 
 
   //#ifdef DEBUG_RAR
@@ -332,8 +335,9 @@ int generate_ue_ulsch_params_from_rar(PHY_VARS_UE *ue,
   msg("ulsch ra (UE): O        %d\n",ulsch->O);
   msg("ulsch ra (UE): ORI      %d\n",ulsch->O_RI);
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_PROCEDURES_UE_TX_ULSCH_RAR,VCD_FUNCTION_OUT);
-
+#endif
   //#endif
   return(0);
 }

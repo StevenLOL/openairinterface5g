@@ -121,7 +121,7 @@ Options
    Makes the core security features unitary simulators
 -s | --check
    runs a set of auto-tests based on simulators and several compilation tests
---run-group 
+--run-group
    runs only specified test cases specified here. This flag is only valid with -s
 -V | --vcd
    Adds a debgging facility to the binary files: GUI with major internal synchronization events
@@ -130,7 +130,7 @@ Options
 --install-system-files
    Install OpenArInterface required files in Linux system
    (will ask root password)
---noS1 
+--noS1
    Compiles oaisim or lte-softmodem without S1 interface, using direct link to IP instead
 --verbose-compile
    Shows detailed compilation instructions in makefile
@@ -141,7 +141,7 @@ Options
 --disable-deadline
    Disables deadline scheduler of Linux kernel (>=3.14.x).
 --enable-deadline
-   Enable deadline scheduler of Linux kernel (>=3.14.x). 
+   Enable deadline scheduler of Linux kernel (>=3.14.x).
 --disable-cpu-affinity
    Disables CPU Affinity between UHD/TX/RX Threads (Valid only when deadline scheduler is disabled). By defaulT, CPU Affinity is enabled when not using deadline scheduler. It is enabled only with >2 CPUs. For eNB, CPU_0-> Device library (UHD), CPU_1->TX Threads, CPU_2...CPU_MAX->Rx Threads. For UE, CPU_0->Device Library(UHD), CPU_1..CPU_MAX -> All the UE threads
 --T-tracer
@@ -163,8 +163,8 @@ Usage (first build):
  Eurecom EXMIMO + COTS UE : ./build_oai -I  --eNB -x --install-system-files
  NI/ETTUS B201  + COTS UE : ./build_oai -I  --eNB -x --install-system-files -w USRP
 Usage (Regular):
- oaisim : ./build_oai --oaisim -x 
- Eurecom EXMIMO + OAI ENB : ./build_oai --eNB -x 
+ oaisim : ./build_oai --oaisim -x
+ Eurecom EXMIMO + OAI ENB : ./build_oai --eNB -x
  NI/ETTUS B201  + OAI ENB : ./build_oai --eNB -x -w USRP"
 }
 
@@ -226,28 +226,28 @@ function main() {
             shift 2;;
        -w | --hardware)
             HW="$2" #"${i#*=}"
-            # Use OAI_USRP  as the key word USRP is used inside UHD driver           
-	    if [ "$HW" != "BLADERF" -a  "$HW" != "USRP" -a "$HW" != "LMSSDR" -a  "$HW" != "None" -a  "$HW" != "EXMIMO"  ] ; then 
-		echo_fatal "Unknown HW type $HW will exit..."		
+            # Use OAI_USRP  as the key word USRP is used inside UHD driver
+	    if [ "$HW" != "BLADERF" -a  "$HW" != "USRP" -a "$HW" != "LMSSDR" -a  "$HW" != "None" -a  "$HW" != "EXMIMO"  ] ; then
+		echo_fatal "Unknown HW type $HW will exit..."
 	    else
-		if [ "$HW" == "USRP" ] ; then 
+		if [ "$HW" == "USRP" ] ; then
 		    HW="OAI_USRP"
-		fi 
-		if [ "$HW" == "BLADERF" ] ; then 
+		fi
+		if [ "$HW" == "BLADERF" ] ; then
 		    HW="OAI_BLADERF"
 		fi
-		if [ "$HW" == "LMSSDR" ] ; then 
+		if [ "$HW" == "LMSSDR" ] ; then
 		    HW="OAI_LMSSDR"
-		fi 
+		fi
 		echo_info "Setting hardware to: $HW"
 	    fi
             shift 2;;
 	-t | --transport_protocol)
             TP="$2" #"${i#*=}"
-	    if [ "$TP" != "ETHERNET" -a "$TP" != "None" ] ; then 
-		echo_fatal "Unknown TP type $TP will exit..."		
+	    if [ "$TP" != "ETHERNET" -a "$TP" != "None" ] ; then
+		echo_fatal "Unknown TP type $TP will exit..."
 	    else
-		echo_info "Setting transport protocol to: $TP"		
+		echo_info "Setting transport protocol to: $TP"
 	    fi
             shift 2;;
 	--oaisim)
@@ -259,7 +259,7 @@ function main() {
             echo_info "Will compile dlsim, ulsim, ..."
             shift;;
        --mexfiles)
-            MEX_PHY=1
+            MEX=1
             echo_info "Will compile mexfiles, ..."
             shift;;
        --core_simulators)
@@ -304,7 +304,7 @@ function main() {
        --build-doxygen)
 	    BUILD_DOXYGEN=1
             echo_info "Will build doxygen support"
-            shift;;     
+            shift;;
        --disable-deadline)
             FORCE_DEADLINE_SCHEDULER_FLAG_USER="False"
             echo_info "Disabling the usage of deadline scheduler"
@@ -349,7 +349,7 @@ function main() {
             BUILD_ECLIPSE=1
             CMAKE_CMD="$CMAKE_CMD"' -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE -G"Eclipse CDT4 - Unix Makefiles"'
             echo_info "Enabling build eclipse project support"
-            shift 1;;			
+            shift 1;;
         -h | --help)
             print_help
             exit 1;;
@@ -359,64 +359,64 @@ function main() {
             break;;
    esac
   done
-  
+
   CMAKE_CMD="$CMAKE_CMD .."
   echo_info "CMAKE_CMD=$CMAKE_CMD"
-  
+
   #########################################################
   # check validity of HW and TP parameters for RRH and eNB
   #########################################################
   # to be discussed
-  
+
   if [ "$eNB" = "1" ] ; then
       if [ "$HW" = "None" -a  "$TP" = "None" ] ; then
 	  echo_fatal "Define a local radio head (e.g. -w EXMIMO) or a transport protocol (e.g. -t ETHERNET) to communicate with a remote radio head!"
       fi
-      if [ "$HW" = "None" ] ; then 
-	  echo_info "No radio head has been selected (HW set to $HW)"	
+      if [ "$HW" = "None" ] ; then
+	  echo_info "No radio head has been selected (HW set to $HW)"
       fi
       if [ "$TP" = "None" ] ; then
-	  echo_info "No transport protocol has been selected (TP set to $TP)"	
+	  echo_info "No transport protocol has been selected (TP set to $TP)"
       fi
   fi
-  
+
   if [ "$RRH" = "1" ] ; then
       if [ "$TP" = "None" ] ; then
 	  echo_fatal "A transport protocol (e.g. -t ETHERNET) must be defined!"
       fi
       if [ "$HW" = "None" ] ; then
-	  echo_info "No radio head has been selected (HW set to $HW)"	
+	  echo_info "No radio head has been selected (HW set to $HW)"
       fi
   fi
 
-  echo_info "RF HW set to $HW" 
+  echo_info "RF HW set to $HW"
   #Now we set flags to enable deadline scheduler settings
-  #By default: USRP: disable, 
+  #By default: USRP: disable,
   #By default: BLADERF: enable,
   #By default: EXMIMO: enable
   if [ "$FORCE_DEADLINE_SCHEDULER_FLAG_USER" = "" ]; then
-     if [ "$HW" = "EXMIMO" ] ; then 
+     if [ "$HW" = "EXMIMO" ] ; then
         DEADLINE_SCHEDULER_FLAG_USER="True"
-     elif [ "$HW" = "ETHERNET" ] ; then 
+     elif [ "$HW" = "ETHERNET" ] ; then
         DEADLINE_SCHEDULER_FLAG_USER="False"
-     elif [ "$HW" = "OAI_USRP" ] ; then 
+     elif [ "$HW" = "OAI_USRP" ] ; then
         DEADLINE_SCHEDULER_FLAG_USER="False"
-     elif [ "$HW" = "OAI_BLADERF" ] ; then 
+     elif [ "$HW" = "OAI_BLADERF" ] ; then
         DEADLINE_SCHEDULER_FLAG_USER="False"
-     elif [ "$HW" = "OAI_LMSSDR" ] ; then 
+     elif [ "$HW" = "OAI_LMSSDR" ] ; then
         DEADLINE_SCHEDULER_FLAG_USER="False"
-     elif [ "$HW" = "None" ] ; then 
+     elif [ "$HW" = "None" ] ; then
         DEADLINE_SCHEDULER_FLAG_USER="False"
-     else 
+     else
         echo_error "Unknown HW type $HW. Exiting now..."
-        exit 
+        exit
      fi
   else
      DEADLINE_SCHEDULER_FLAG_USER=$FORCE_DEADLINE_SCHEDULER_FLAG_USER
   fi
 
   #Disable CPU Affinity for deadline scheduler
-  if [ "$DEADLINE_SCHEDULER_FLAG_USER" = "True" ] ; then 
+  if [ "$DEADLINE_SCHEDULER_FLAG_USER" = "True" ] ; then
      CPU_AFFINITY_FLAG_USER="False"
   fi
 
@@ -465,7 +465,7 @@ function main() {
       if [ ! "$DISABLE_HARDWARE_DEPENDENCY" == "True" ]; then
         install_usrp_uhd_driver $UHD_IMAGES_DIR
       fi
-    fi 
+    fi
     if [ "$HW" == "OAI_BLADERF" ] ; then
       echo_info "installing packages for BLADERF support"
       check_install_bladerf_driver
@@ -487,16 +487,16 @@ function main() {
 
   if [ "$oaisim" = "1" ] ; then
       #to be discussed
-      # there is no RF device  transport protocol 
-      HW="None" 
+      # there is no RF device  transport protocol
+      HW="None"
       TP="ETHERNET"
-      
-      if [ "$XFORMS" == "True" ] ; then 
+
+      if [ "$XFORMS" == "True" ] ; then
 	  PRINT_STATS="True"
-      fi 
+      fi
   fi
-  
-  
+
+
   echo_info "3. building the compilation directives ..."
 
   DIR=$OPENAIR_DIR/cmake_targets
@@ -577,11 +577,11 @@ function main() {
 #    compilations \
 #      at_commands at_nas_ue \
 #      at_nas_ue $dbin/at_nas_ue
-    
+
     [ "$CLEAN" = "1" ] && rm -rf $DIR/nas_sim_tools/build
     mkdir -p $DIR/nas_sim_tools/build
     cd $DIR/nas_sim_tools/build
-    
+
     eval $CMAKE_CMD
     compilations \
       nas_sim_tools usim \
@@ -626,14 +626,14 @@ function main() {
   fi
 
   # Mexfiles
-  if [ "$MEX_PHY" = "1" ] ; then
+  if [ "$MEX" = "1" ] ; then
     cd $OPENAIR_DIR/cmake_targets/mexfiles
     [ "$CLEAN" = "1" ] && rm -rf build
     mkdir -p build
     cd build
     cmake ../
     echo_info "Compiling stuff for mexfiles"
-    mexFileList="mexAdd mexGetTbs mexDlschEncoding"
+    mexFileList="mexAdd mexGetTbs mexTaus mexSetTausSeed mexDlschDecodingInit mexDlschEncoding mexDlschChannelLevelPrec_TM56 mexLog2Approx mexDlschChannelCompensation_TM56 mexDlschDualStreamCorrelation mexDlschDetectionMrc mexDlschIALLR mexDlschDecoding"
     for mexFile in $mexFileList ; do
 	make $mexFile
     done
@@ -655,7 +655,7 @@ function main() {
   # EXMIMO drivers & firmware loader
   ###############
   if [ "$HW" = "EXMIMO" ] ; then
-    
+
     echo_info "Compiling Express MIMO 2 board drivers"
     compilations \
         $lte_build_dir openair_rf \
@@ -685,7 +685,7 @@ function main() {
 	  oaisim_build_dir=oaisim_build_oai
 	  oaisim_exec=oaisim
       fi
-    
+
     echo_info "Compiling $oaisim_exec ($oaisim_build_dir)"
     cmake_file=$DIR/$oaisim_build_dir/CMakeLists.txt
     cp $DIR/$oaisim_build_dir/CMakeLists.template $cmake_file
@@ -768,9 +768,9 @@ function main() {
 	    liboai_eth_transpro.so $dbin/liboai_eth_transpro.so.$REL
 	ln -sf liboai_eth_transpro.so liboai_transpro.so
 	ln -sf $dbin/liboai_eth_transpro.so.$REL $dbin/liboai_transpro.so
-	echo_info "liboai_transpro.so is linked with ETHERNET library"	 
+	echo_info "liboai_transpro.so is linked with ETHERNET library"
     fi
-      
+
     cmake_file=$DIR/oaisim_mme_build_oai/CMakeLists.txt
     cp $DIR/oaisim_mme_build_oai/CMakeLists.template $cmake_file
     echo "set ( CMAKE_BUILD_TYPE $CMAKE_BUILD_TYPE )" >> $cmake_file
@@ -797,10 +797,10 @@ function main() {
 
      rrh_exec=rrh_gw
      rrh_build_dir=rrh_gw
-     
+
      echo_info "Compiling $rrh_exec ..."
-    
-     [ "$CLEAN" = "1" ] && rm -rf $DIR/rrh_gw/build 
+
+     [ "$CLEAN" = "1" ] && rm -rf $DIR/rrh_gw/build
      mkdir -p $DIR/$rrh_build_dir/build
      cmake_file=$DIR/$rrh_build_dir/CMakeLists.txt
      echo "cmake_minimum_required(VERSION 2.8)"   >   $cmake_file
@@ -813,7 +813,7 @@ function main() {
      echo "set ( DEADLINE_SCHEDULER \"${DEADLINE_SCHEDULER_FLAG_USER}\" )"    >>$cmake_file
      echo "set ( CPU_AFFINITY \"${CPU_AFFINITY_FLAG_USER}\" )"    >>$cmake_file
      echo "set ( T_TRACER $T_TRACER )"            >>  $cmake_file
-     echo 'include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)' >> $cmake_file    
+     echo 'include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)' >> $cmake_file
      cd $DIR/$rrh_build_dir/build
      eval $CMAKE_CMD
      compilations \
@@ -821,15 +821,15 @@ function main() {
 	 rrh_gw $dbin/rrh_gw
 
   fi
-  
+
   # build RF device and transport protocol libraries
   #####################################
   if [ "$eNB" = "1" -o "$UE" = "1" -o  "$RRH" = "1" ] ; then
 
       if [ "$eNB" = "1" -o "$UE" = "1" ] ; then
-	  build_dir=$lte_build_dir	  
+	  build_dir=$lte_build_dir
       else
-	  build_dir=$rrh_build_dir	 
+	  build_dir=$rrh_build_dir
       fi
 
       # build RF device libraries
@@ -845,7 +845,7 @@ function main() {
 
 	      ln -sf liboai_exmimodevif.so liboai_device.so
 	      ln -sf $dbin/liboai_exmimodevif.so.$REL $dbin/liboai_device.so
-	      echo_info "liboai_device.so is linked to EXMIMO device library"       
+	      echo_info "liboai_device.so is linked to EXMIMO device library"
 	  elif [ "$HW" == "OAI_USRP" ] ; then
 	      if [ -d "/usr/include/uhd" ] ; then
 		  compilations \
@@ -855,7 +855,7 @@ function main() {
 
 	      ln -sf liboai_usrpdevif.so liboai_device.so
 	      ln -sf $dbin/liboai_usrpdevif.so.$REL $dbin/liboai_device.so
-	      echo_info "liboai_device.so is linked to USRP device library"        
+	      echo_info "liboai_device.so is linked to USRP device library"
 	  elif [ "$HW" == "OAI_BLADERF" ] ; then
 	      if [ -f "/usr/include/libbladeRF.h" ] ; then
 		  compilations \
@@ -865,7 +865,7 @@ function main() {
 
 	      ln -sf liboai_bladerfdevif.so liboai_device.so
 	      ln -sf $dbin/liboai_bladerfdevif.so.$REL $dbin/liboai_device.so
-	      echo_info "liboai_device.so is linked to BLADERF device library"	 
+	      echo_info "liboai_device.so is linked to BLADERF device library"
 	  elif [ "$HW" == "OAI_LMSSDR" ] ; then
 #	      if [ -f "/usr/include/libbladeRF.h" ] ; then
 		  compilations \
@@ -875,12 +875,12 @@ function main() {
 
 	      ln -sf liboai_lmssdrdevif.so liboai_device.so
 	      ln -sf $dbin/liboai_lmssdrdevif.so.$REL $dbin/liboai_device.so
-	      echo_info "liboai_device.so is linked to LMSSDR device library"	 
-	  else 
-	      echo_info "liboai_device.so is not linked to any device library"	    
+	      echo_info "liboai_device.so is linked to LMSSDR device library"
+	  else
+	      echo_info "liboai_device.so is not linked to any device library"
 	  fi
       fi
-      
+
       # build trasport protocol libraries (currently only ETHERNET is available)
       if [ "$TP" != "None" ] ; then
 	  rm -f liboai_transpro.so
@@ -892,8 +892,8 @@ function main() {
 		  liboai_eth_transpro.so $dbin/liboai_eth_transpro.so.$REL
 	      ln -sf liboai_eth_transpro.so liboai_transpro.so
 	      ln -sf $dbin/liboai_eth_transpro.so.$REL $dbin/liboai_transpro.so
-	      echo_info "liboai_transpro.so is linked with ETHERNET library"	 
-	  fi      
+	      echo_info "liboai_transpro.so is linked with ETHERNET library"
+	  fi
       fi
 fi
 

@@ -32,7 +32,7 @@
 #ifndef __PHY_DEFS__H__
 #define __PHY_DEFS__H__
 
-#define _GNU_SOURCE 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
@@ -42,8 +42,22 @@
 
 //#include <complex.h>
 #include "assertions.h"
+
 #ifdef MEX
+#include "mex.h"
 # define msg mexPrintf
+# undef LOG_D
+# undef LOG_E
+# undef LOG_I
+# undef LOG_N
+# undef LOG_T
+# undef LOG_W
+# define LOG_D(x, ...) mexPrintf(__VA_ARGS__)
+# define LOG_E(x, ...) mexPrintf(__VA_ARGS__)
+# define LOG_I(x, ...) mexPrintf(__VA_ARGS__)
+# define LOG_N(x, ...) mexPrintf(__VA_ARGS__)
+# define LOG_T(x, ...) mexPrintf(__VA_ARGS__)
+# define LOG_W(x, ...) mexPrintf(__VA_ARGS__)
 #else
 # ifdef OPENAIR2
 #   if ENABLE_RAL
@@ -980,13 +994,17 @@ struct rx_tx_thread_data {
   UE_rxtx_proc_t *proc;
 };
 
+#if !defined MEX
 void exit_fun(const char* s);
+#endif
 
 static inline int wait_on_condition(pthread_mutex_t *mutex,pthread_cond_t *cond,int *instance_cnt,char *name) {
 
   if (pthread_mutex_lock(mutex) != 0) {
     LOG_E( PHY, "[SCHED][eNB] error locking mutex for %s\n",name);
+#if !defined MEX
     exit_fun("nothing to add");
+#endif
     return(-1);
   }
 
@@ -998,7 +1016,9 @@ static inline int wait_on_condition(pthread_mutex_t *mutex,pthread_cond_t *cond,
 
   if (pthread_mutex_unlock(mutex) != 0) {
     LOG_E(PHY,"[SCHED][eNB] error unlocking mutex for %s\n",name);
+#if !defined MEX
     exit_fun("nothing to add");
+#endif
     return(-1);
   }
   return(0);
@@ -1008,7 +1028,9 @@ static inline int wait_on_busy_condition(pthread_mutex_t *mutex,pthread_cond_t *
 
   if (pthread_mutex_lock(mutex) != 0) {
     LOG_E( PHY, "[SCHED][eNB] error locking mutex for %s\n",name);
+#if !defined MEX
     exit_fun("nothing to add");
+#endif
     return(-1);
   }
 
@@ -1020,7 +1042,9 @@ static inline int wait_on_busy_condition(pthread_mutex_t *mutex,pthread_cond_t *
 
   if (pthread_mutex_unlock(mutex) != 0) {
     LOG_E(PHY,"[SCHED][eNB] error unlocking mutex for %s\n",name);
+#if !defined MEX
     exit_fun("nothing to add");
+#endif
     return(-1);
   }
   return(0);
@@ -1030,7 +1054,9 @@ static inline int release_thread(pthread_mutex_t *mutex,int *instance_cnt,char *
 
   if (pthread_mutex_lock(mutex) != 0) {
     LOG_E( PHY, "[SCHED][eNB] error locking mutex for %s\n",name);
+#if !defined MEX
     exit_fun("nothing to add");
+#endif
     return(-1);
   }
 
@@ -1038,7 +1064,9 @@ static inline int release_thread(pthread_mutex_t *mutex,int *instance_cnt,char *
 
   if (pthread_mutex_unlock(mutex) != 0) {
     LOG_E( PHY, "[SCHED][eNB] error unlocking mutex for %s\n",name);
+#if !defined MEX
     exit_fun("nothing to add");
+#endif
     return(-1);
   }
   return(0);

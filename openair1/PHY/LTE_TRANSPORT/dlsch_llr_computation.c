@@ -681,16 +681,32 @@ int dlsch_qpsk_llr(LTE_DL_FRAME_PARMS *frame_parms,
              llr32);*/
 
   //printf("ll32p=%p , dlsch_llr=%p, symbol=%d, flag=%d \n", llr32, dlsch_llr, symbol, first_symbol_flag);
-  for (i=0; i<len; i++) {
-    *llr32 = *rxF;
-     //printf("llr %d : (%d,%d)\n",i,((int16_t*)llr32)[0],((int16_t*)llr32)[1]);
-    rxF++;
-    llr32++;
-  }
+
+
+  qpsk_llr(rxF,
+           llr32,
+           len);
 
   //*llr32p = (int16_t *)llr32;
 
   return(0);
+}
+
+
+
+void qpsk_llr(int32_t *stream0_in,
+              int32_t *stream0_out,
+              int length)
+{
+  int i;
+
+  for (i=0; i<length; i++) {
+    *stream0_out = *stream0_in;
+    //printf("llr %d : (%d,%d)\n",i,((int16_t*)stream0_out)[0],((int16_t*)stream0_out)[1]);
+    stream0_in++;
+    stream0_out++;
+  }
+
 }
 
 int32_t dlsch_qpsk_llr_SIC(LTE_DL_FRAME_PARMS *frame_parms,
@@ -8898,7 +8914,7 @@ int dlsch_64qam_64qam_llr(LTE_DL_FRAME_PARMS *frame_parms,
                    (int32_t *) rho_256i,
                    len);
 #endif
-  
+
   free16(rxF_256i, sizeof(rxF_256i));
   free16(rxF_i_256i, sizeof(rxF_i_256i));
   free16(ch_mag_256i, sizeof(ch_mag_256i));

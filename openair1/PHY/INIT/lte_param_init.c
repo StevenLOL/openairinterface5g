@@ -33,12 +33,12 @@
 extern PHY_VARS_eNB *eNB;
 extern PHY_VARS_UE *UE;
 
-void lte_param_init(unsigned char N_tx_port_eNB, 
+void lte_param_init(unsigned char N_tx_port_eNB,
                     unsigned char N_tx_phy,
 		    unsigned char N_rx,
 		    unsigned char transmission_mode,
 		    uint8_t extended_prefix_flag,
-		    frame_t frame_type, 
+		    frame_t frame_type,
 		    uint16_t Nid_cell,
 		    uint8_t tdd_config,
 		    uint8_t N_RB_DL,
@@ -56,7 +56,9 @@ void lte_param_init(unsigned char N_tx_port_eNB,
   memset((void*)eNB,0,sizeof(PHY_VARS_eNB));
   memset((void*)UE,0,sizeof(PHY_VARS_UE));
   //PHY_config = malloc(sizeof(PHY_CONFIG));
+#if !defined MEX
   mac_xface = malloc(sizeof(MAC_xface));
+#endif
 
   srand(0);
   randominit(0);

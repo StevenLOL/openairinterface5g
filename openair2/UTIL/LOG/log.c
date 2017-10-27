@@ -334,7 +334,7 @@ int logInit (void)
   g_log->log_component[FLEXRAN_AGENT].fd = 0;
   g_log->log_component[FLEXRAN_AGENT].filelog = 0;
   g_log->log_component[FLEXRAN_AGENT].filelog_name = "";
-  
+
   g_log->log_component[TMR].name = "TMR";
   g_log->log_component[TMR].level = LOG_EMERG;
   g_log->log_component[TMR].flag = LOG_MED;
@@ -400,7 +400,7 @@ int logInit (void)
   g_log->log_component[SCTP].fd = 0;
   g_log->log_component[SCTP].filelog = 0;
   g_log->log_component[SCTP].filelog_name = "";
- 
+
   g_log->log_component[RRH].name = "RRH";
   g_log->log_component[RRH].level = LOG_EMERG;
   g_log->log_component[RRH].flag = LOG_MED;
@@ -408,7 +408,7 @@ int logInit (void)
   g_log->log_component[RRH].fd = 0;
   g_log->log_component[RRH].filelog = 0;
   g_log->log_component[RRH].filelog_name = "";
-  
+
   g_log->level2string[LOG_EMERG]         = "G"; //EMERG
   g_log->level2string[LOG_ALERT]         = "A"; // ALERT
   g_log->level2string[LOG_CRIT]          = "C"; // CRITIC
@@ -462,6 +462,8 @@ int logInit (void)
 
 #ifdef USER_MODE
   printf("log init done\n");
+#elif MEX
+  mexPrintf("log init done\n");
 #else
   printk("log init done\n");
 #endif
@@ -601,6 +603,9 @@ void logRecord_thread_safe(const char *file, const char *func,
       rtf_put (FIFO_PRINTF_NO, log_buffer, len);
     }
 
+#elif MEX
+
+    mexPrintf(stdout, "%s", log_buffer);
 #else
     fprintf(stdout, "%s", log_buffer);
 #endif

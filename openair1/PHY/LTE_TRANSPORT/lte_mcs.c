@@ -107,6 +107,8 @@ unsigned char I_TBS2I_MCS(unsigned char I_TBS)
   return I_MCS;
 }
 
+/*This function is valid for a codeword mapped onto a single layer for any number of nb_rb,
+or multi-layer codeword with nb_rb < 27 (this threshhold )*/
 uint32_t get_TBS_DL(uint8_t mcs, uint16_t nb_rb)
 {
 
@@ -337,7 +339,7 @@ int get_G(LTE_DL_FRAME_PARMS *frame_parms,uint16_t nb_rb,uint32_t *rb_alloc,uint
       // PDDDPDD PDDDPDD - 13 PDSCH symbols, 10 full, 3 w/ pilots = 10*12 + 3*8
       // PCDDPDD PDDDPDD - 12 PDSCH symbols, 9 full, 3 w/ pilots = 9*12 + 3*8
       // PCCDPDD PDDDPDD - 11 PDSCH symbols, 8 full, 3 w/pilots = 8*12 + 3*8
-      if (beamforming_mode==0 && frame_parms->mode1_flag==0) 
+      if (beamforming_mode==0 && frame_parms->mode1_flag==0)
         return((((int)nb_rb * mod_order * ((11-num_pdcch_symbols)*12 + 3*8)) - G_adj)*Nl);
       else if(beamforming_mode==7)
         return(((int)nb_rb * mod_order * ((7-num_pdcch_symbols)*12 + 3*10 + 4*9)) - G_adj);

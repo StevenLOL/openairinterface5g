@@ -303,6 +303,8 @@ void *log_thread_function(void * list);
  *  @brief Macro used to call logIt function with different message levels
  * @{*/
 
+#ifndef LOG_D
+
 // debugging macros
 #ifdef USER_MODE
 #  if T_TRACER
@@ -353,6 +355,9 @@ void *log_thread_function(void * list);
 #  define LOG_D(c, x...) printk(x)
 #  define LOG_T(c, x...) printk(x)
 #endif
+
+#endif /* LOG_D */
+
 /* @}*/
 
 
@@ -417,12 +422,12 @@ typedef struct m {
 static inline void printMeas(char * txt, Meas *M, int period) {
     if (M->iterations%period == 0 ) {
         char txt2[512];
-        sprintf(txt2,"%s avg=%" PRIu64 " iterations=%" PRIu64 " max=%" 
+        sprintf(txt2,"%s avg=%" PRIu64 " iterations=%" PRIu64 " max=%"
                 PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 ":%" PRIu64 "\n",
                 txt,
                 M->sum/M->iterations,
                 M->iterations,
-                M->maxArray[1],M->maxArray[2], M->maxArray[3],M->maxArray[4], M->maxArray[5], 
+                M->maxArray[1],M->maxArray[2], M->maxArray[3],M->maxArray[4], M->maxArray[5],
                 M->maxArray[6],M->maxArray[7], M->maxArray[8],M->maxArray[9],M->maxArray[10]);
 #if DISABLE_LOG_X
         printf("%s",txt2);

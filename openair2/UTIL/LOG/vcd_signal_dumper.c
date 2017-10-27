@@ -212,7 +212,7 @@ const char* eurecomFunctionsNames[] = {
   "ue_lock_mutex_rxtx_for_cnt_increment0",
   "ue_lock_mutex_rxtx_for_cnt_increment1",
 
- /* RRH signals  */ 
+ /* RRH signals  */
   "eNB_tx",
   "eNB_rx",
   "eNB_trx",
@@ -374,7 +374,7 @@ const char* eurecomFunctionsNames[] = {
   "itti_dump_enqueue_message_malloc",
   "itti_relay_thread",
   "test",
-  
+
   /* IF4/IF5 signals */
   "send_if4",
   "recv_if4",
@@ -771,6 +771,7 @@ void vcd_signal_dumper_dump_variable_by_name(vcd_signal_dump_variables variable_
   }
 }
 
+#if (!MEX)
 void vcd_signal_dumper_dump_function_by_name(vcd_signal_dump_functions  function_name,
     vcd_signal_dump_in_out     in_out)
 {
@@ -803,4 +804,6 @@ void vcd_signal_dumper_dump_function_by_name(vcd_signal_dump_functions  function
 #endif
   }
 }
+#endif
+
 

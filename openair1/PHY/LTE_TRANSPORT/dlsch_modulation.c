@@ -2110,7 +2110,9 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
 
   }
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_MODULATION, VCD_FUNCTION_IN);
+#endif
 
   nsymb = (frame_parms->Ncp==0) ? 14:12;
 
@@ -2430,7 +2432,9 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
   }
 #endif
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_MODULATION, VCD_FUNCTION_OUT);
+#endif
 
   return (re_allocated);
 }
@@ -2459,7 +2463,9 @@ int dlsch_modulation_SIC(int32_t **sic_buffer,
   uint8_t Nl1;
 #endif
 
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_MODULATION, VCD_FUNCTION_IN);
+#endif
 
   gain_lin_QPSK = (int16_t)((ONE_OVER_SQRT2_Q15));
 
@@ -2569,9 +2575,9 @@ int dlsch_modulation_SIC(int32_t **sic_buffer,
 #ifdef DEBUG_DLSCH_MODULATION
   printf("generate_dlsch : jj = %d,re_allocated = %d (G %d)\n",jj,re_allocated,get_G(frame_parms,dlsch0_harq->nb_rb,dlsch0_harq->rb_alloc,mod_order0,Nl0,2,0,subframe_offset,1/*transmission mode*/));
 #endif
-
+#if !defined MEX
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_MODULATION, VCD_FUNCTION_OUT);
-
+#endif
   return (re_allocated);
 }
 

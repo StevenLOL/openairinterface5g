@@ -322,8 +322,9 @@ void generate_mch(PHY_VARS_eNB *eNB,eNB_rxtx_proc_t *proc,uint8_t *a)
                        &eNB->dlsch_turbo_encoding_stats,
                        &eNB->dlsch_interleaving_stats
                       )<0)
+#if !defined MEX
       mac_xface->macphy_exit("problem in dlsch_encoding");
-
+#endif
     dlsch_scrambling(&eNB->frame_parms,1,eNB->dlsch_MCH,G,0,subframe<<1);
 
 
@@ -402,7 +403,7 @@ void mch_channel_level(int **dl_ch_estimates_ext,
 #if defined(__x86_64__) || defined(__i386__)
   __m128i *dl_ch128,avg128;
 #elif defined(__arm__)
-  int32x4_t avg128; 
+  int32x4_t avg128;
 #endif
   for (aarx=0; aarx<frame_parms->nb_antennas_rx; aarx++) {
 #if defined(__x86_64__) || defined(__i386__)

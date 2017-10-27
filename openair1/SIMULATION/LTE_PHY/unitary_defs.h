@@ -22,7 +22,9 @@
 openair0_device openair0;
 int oai_exit=0;
 
+#if !defined MEX
 void exit_fun(const char *s) { exit(-1); }
+#endif
 
 extern unsigned int dlsch_tbs25[27][25],TBStable[27][110];
 extern unsigned char offset_mumimo_llr_drange_fix;

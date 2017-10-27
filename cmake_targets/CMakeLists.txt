@@ -631,6 +631,7 @@ add_boolean_option(SMBV                    False "Rohde&Schwarz SMBV100A vector 
 add_boolean_option(DEBUG_PHY               False "Enable PHY layer debugging options")
 add_boolean_option(DEBUG_PHY_PROC          False "Enable debugging of PHY layer procedures")
 add_boolean_option(DEBUG_DLSCH             False "Enable debugging of DLSCH physical layer channel")
+add_boolean_option(MEX                     True "Enabling compilation with mex")
 
 ##########################
 # 802.21 options
@@ -1654,7 +1655,7 @@ if(EXISTS "/usr/include/atlas/cblas.h" OR EXISTS "/usr/include/cblas.h")
   include_directories("/usr/include/atlas")
   LINK_DIRECTORIES("/usr/lib64")
   LINK_DIRECTORIES("/usr/lib64/atlas") #Added because atlas libraries in CentOS 7 are here!
-  
+
   if(EXISTS "/usr/lib64/libblas.so" OR EXISTS "/usr/lib/libblas.so") #Case for CentOS7
      list(APPEND ATLAS_LIBRARIES blas)
   else() # Case for Ubuntu
@@ -1878,7 +1879,7 @@ target_link_libraries (oaisim
   -Wl,--end-group )
 
 target_link_libraries (oaisim ${LIBXML2_LIBRARIES} ${LAPACK_LIBRARIES})
-target_link_libraries (oaisim pthread m ${CONFIG_LIBRARIES} rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES}  ${NETTLE_LIBRARIES} sctp 
+target_link_libraries (oaisim pthread m ${CONFIG_LIBRARIES} rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES}  ${NETTLE_LIBRARIES} sctp
   ${ATLAS_LIBRARIES} ${XFORMS_LIBRARIES} ${OPENPGM_LIBRARIES})
 #Force link with forms, regardless XFORMS option
 target_link_libraries (oaisim forms)
@@ -1919,7 +1920,7 @@ target_link_libraries (oaisim_nos1
   -Wl,--end-group )
 
 target_link_libraries (oaisim_nos1 ${LIBXML2_LIBRARIES} ${LAPACK_LIBRARIES})
-target_link_libraries (oaisim_nos1 pthread m ${CONFIG_LIBRARIES} rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES}  ${NETTLE_LIBRARIES}  
+target_link_libraries (oaisim_nos1 pthread m ${CONFIG_LIBRARIES} rt crypt ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES}  ${NETTLE_LIBRARIES}
   ${ATLAS_LIBRARIES} ${XFORMS_LIBRARIES} ${OPENPGM_LIBRARIES} ${PROTOBUF_LIB} ${CMAKE_DL_LIBS} ${LIBYAML_LIBRARIES})
 #Force link with forms, regardless XFORMS option
 target_link_libraries (oaisim_nos1 forms)

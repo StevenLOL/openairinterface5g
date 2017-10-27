@@ -423,7 +423,6 @@ uint32_t  dlsch_decoding(PHY_VARS_UE *phy_vars_ue,
 #endif
     }
     r_offset += E;
-
     /*
     printf("Subblock deinterleaving, d %p w %p\n",
      harq_process->d[r],
@@ -434,7 +433,6 @@ uint32_t  dlsch_decoding(PHY_VARS_UE *phy_vars_ue,
 #endif
     sub_block_deinterleaving_turbo(4+Kr,
                                    &harq_process->d[r][96],
-
                                    harq_process->w[r]);
 #if UE_TIMING_TRACE
     stop_meas(dlsch_deinterleaving_stats);
@@ -503,7 +501,6 @@ uint32_t  dlsch_decoding(PHY_VARS_UE *phy_vars_ue,
              &phy_vars_ue->dlsch_tc_ext_stats,
              &phy_vars_ue->dlsch_tc_intl1_stats,
              &phy_vars_ue->dlsch_tc_intl2_stats); //(is_crnti==0)?harq_pid:harq_pid+1);
-
 #if UE_TIMING_TRACE
       stop_meas(dlsch_turbo_decoding_stats);
 #endif

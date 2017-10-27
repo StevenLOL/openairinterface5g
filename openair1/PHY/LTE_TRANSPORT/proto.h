@@ -443,6 +443,11 @@ void qpsk_qpsk(int16_t *stream0_in,
     @param nb_rb number of RBs for this allocation
     @param pbch_pss_sss_adj Number of channel bits taken by PBCH/PSS/SSS
     @param llr128p pointer to pointer to symbol in dlsch_llr*/
+
+void qpsk_llr(int32_t *stream0_in,
+              int32_t *stream0_out,
+              int length);
+
 int32_t dlsch_qpsk_qpsk_llr(LTE_DL_FRAME_PARMS *frame_parms,
                             int32_t **rxdataF_comp,
                             int32_t **rxdataF_comp_i,
