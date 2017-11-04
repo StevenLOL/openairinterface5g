@@ -26,7 +26,7 @@
 
 
 //#define k1 1000
-#define k1 1024
+#define k1 128
 #define k2 (1024-k1)
 
 int32_t rx_power_avg_eNB[3];
@@ -52,28 +52,8 @@ void lte_eNB_I0_measurements(PHY_VARS_eNB *eNB,
   // noise measurements
   // for the moment we measure the noise on the 7th OFDM symbol (in S subframe)
 
-  measurements->n0_power_tot = 0;
+  if (clear==1) measurements->n0_power_tot = 0;
 
-  if (common_vars->rxdata!=NULL) {
-    for (aarx=0; aarx<frame_parms->nb_antennas_rx; aarx++) {
-      if (clear == 1)
-	measurements->n0_power[aarx]=0;
-      
-      
-      measurements->n0_power[aarx] = ((k1*signal_energy(&common_vars->rxdata[aarx][(frame_parms->samples_per_tti<<1) -frame_parms->ofdm_symbol_size],
-							frame_parms->ofdm_symbol_size)) + k2*measurements->n0_power[aarx])>>10;
-      //measurements->n0_power[aarx] = (measurements->n0_power[aarx]) * 12*frame_parms->N_RB_DL)/(frame_parms->ofdm_symbol_size);
-      measurements->n0_power_dB[aarx] = (unsigned short) dB_fixed(measurements->n0_power[aarx]);
-      measurements->n0_power_tot +=  measurements->n0_power[aarx];
-    }
-  
-
-    measurements->n0_power_tot_dB = (unsigned short) dB_fixed(measurements->n0_power_tot);
-    
-    measurements->n0_power_tot_dBm = measurements->n0_power_tot_dB - eNB->rx_total_gain_dB;
-  //      printf("n0_power %d\n",measurements->n0_power_tot_dB);
-
-  }
 
   for (rb=0; rb<frame_parms->N_RB_UL; rb++) {
 
@@ -91,23 +71,20 @@ void lte_eNB_I0_measurements(PHY_VARS_eNB *eNB,
 	    (rb==(frame_parms->N_RB_UL>>1))) {
 	  len=6;
 	}
-	if (clear == 1)
-	  measurements->n0_subband_power[aarx][rb]=0;
+	if (clear == 1) measurements->n0_subband_power[aarx][rb]=0;
 
 	AssertFatal(ul_ch, "RX signal buffer (freq) problem");
 
-
-	measurements->n0_subband_power[aarx][rb] = signal_energy_nodc(ul_ch,len);
-	//((k1*(signal_energy_nodc(ul_ch,len))) 
-	  //  + (k2*measurements->n0_subband_power[aarx][rb]));  
-	  
-	measurements->n0_subband_power_dB[aarx][rb] = dB_fixed(measurements->n0_subband_power[aarx][rb]);
+    int sb_en = signal_energy_nodc(ul_ch,len);
+	measurements->n0_subband_power[aarx][rb] = ((k1*sb_en) + (k2*measurements->n0_subband_power[aarx][rb]))>>10;  
+	measurements->n0_subband_power_dB[aarx][rb] = dB_fixed_times10(measurements->n0_subband_power[aarx][rb]);
 	//		printf("subframe %d (%d): eNB %d, aarx %d, rb %d len %d: energy %d (%d dB)\n",subframe,offset,eNB_id,aarx,rb,len,signal_energy_nodc(ul_ch,len),  
 	//	       measurements->n0_subband_power_dB[aarx][rb]);
 	n0_power_tot += measurements->n0_subband_power[aarx][rb];
+    measurements->n0_power_tot = ((k1*sb_en) + (k2*measurements->n0_power_tot))>>10;  
       }
       
-      measurements->n0_subband_power_tot_dB[rb] = dB_fixed(n0_power_tot);
+      measurements->n0_subband_power_tot_dB[rb] = dB_fixed_times10(n0_power_tot);
       measurements->n0_subband_power_tot_dBm[rb] = measurements->n0_subband_power_tot_dB[rb] - eNB->rx_total_gain_dB - dB_fixed(frame_parms->N_RB_UL);
       
     }
