@@ -275,6 +275,15 @@ typedef struct {
 } td_params;
 
 typedef struct {
+  struct PHY_VARS_UE *UE;
+  struct UE_rxtx_proc_t *proc;
+  int eNB_id;
+  int harq_pid;
+  int llr8_flag;
+  int ret;
+} dlsch_td_params;
+
+typedef struct {
   struct PHY_VARS_eNB_s *eNB;
   LTE_eNB_DLSCH_t *dlsch;
   int G;
@@ -654,6 +663,16 @@ typedef struct {
   pthread_cond_t cond_synch;
   /// mutex for UE synch thread
   pthread_mutex_t mutex_synch;
+  /// pthread structure for parallel turbo-decoder thread
+  pthread_t pthread_td;
+  /// \internal This variable is protected by \ref mutex_td.
+  int instance_cnt_td;
+  /// parameters for turbo-decoding worker thread
+  dlsch_td_params tdp;
+  /// condition variable for parallel turbo-decoder thread
+  pthread_cond_t cond_td;
+  /// mutex for parallel turbo-decoder thread
+  pthread_mutex_t mutex_td;
   /// instance count for eNBs
   int instance_cnt_eNBs;
   /// set of scheduling variables RXn-TXnp4 threads

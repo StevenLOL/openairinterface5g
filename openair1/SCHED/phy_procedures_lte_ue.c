@@ -5349,4 +5349,22 @@ void phy_procedures_UE_lte(PHY_VARS_UE *ue,UE_rxtx_proc_t *proc,uint8_t eNB_id,u
   } // slot
 }
 
+//extern int oai_exit;
+
+extern void *dlsch_td_thread(void*);
+
+void init_dlsch_td_thread(PHY_VARS_UE *UE,pthread_attr_t *attr_td) {
+
+  UE_proc_t *proc = &UE->proc;
+
+  proc->tdp.UE = UE;
+  proc->instance_cnt_td         = -1;
+
+  pthread_mutex_init( &proc->mutex_td, NULL);
+  pthread_cond_init( &proc->cond_td, NULL);
+
+  pthread_create(&proc->pthread_td, attr_td, dlsch_td_thread, (void*)&proc->tdp);
+
+}
+
 
