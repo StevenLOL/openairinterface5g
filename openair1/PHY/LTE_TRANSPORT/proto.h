@@ -1325,6 +1325,18 @@ uint32_t dlsch_decoding(PHY_VARS_UE *phy_vars_ue,
                         uint8_t is_crnti,
                         uint8_t llr8_flag);
 
+uint32_t dlsch_decoding_mthread(PHY_VARS_UE *phy_vars_ue,
+                        int eNB_id,
+                        int16_t *dlsch_llr,
+                        LTE_DL_FRAME_PARMS *lte_frame_parms,
+                        LTE_UE_DLSCH_t *dlsch,
+                        LTE_DL_UE_HARQ_t *harq_process,
+                        uint32_t frame,
+                        uint8_t subframe,
+                        uint8_t harq_pid,
+                        uint8_t is_crnti,
+                        uint8_t llr8_flag);
+
 uint32_t dlsch_decoding_emul(PHY_VARS_UE *phy_vars_ue,
                              uint8_t subframe,
                              PDSCH_t dlsch_id,

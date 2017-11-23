@@ -235,6 +235,15 @@ typedef struct {
 } td_params;
 
 typedef struct {
+  struct PHY_VARS_UE_s *UE;
+  struct UE_rxtx_proc_t_s *proc;
+  int eNB_id;
+  int harq_pid;
+  int llr8_flag;
+  int ret;
+} dlsch_td_params;
+
+typedef struct {
   struct PHY_VARS_eNB_s *eNB;
   LTE_eNB_DLSCH_t *dlsch;
   int G;
@@ -374,7 +383,7 @@ typedef struct eNB_proc_t_s {
 
 
 /// Context data structure for RX/TX portion of subframe processing
-typedef struct {
+typedef struct UE_rxtx_proc_t_s {
   /// index of the current UE RX/TX proc
   int                  proc_id;
   /// Component Carrier index
@@ -464,6 +473,18 @@ typedef struct {
   pthread_cond_t cond_synch;
   /// mutex for UE synch thread
   pthread_mutex_t mutex_synch;
+  /// pthread structure for parallel turbo-decoder thread
+  pthread_t pthread_td;
+  /// \internal This variable is protected by \ref mutex_td.
+  int instance_cnt_td;
+  /// parameters for turbo-decoding worker thread
+  dlsch_td_params tdp;
+  /// condition variable for parallel turbo-decoder thread
+  pthread_cond_t cond_td;
+  /// mutex for parallel turbo-decoder thread
+  pthread_mutex_t mutex_td;
+  /// instance count for eNBs
+  int instance_cnt_eNBs;
   /// set of scheduling variables RXn-TXnp4 threads
   UE_rxtx_proc_t proc_rxtx[RX_NB_TH];
 } UE_proc_t;
@@ -699,7 +720,7 @@ typedef struct PHY_VARS_eNB_s {
 #define debug_msg if (((mac_xface->frame%100) == 0) || (mac_xface->frame < 50)) msg
 
 /// Top-level PHY Data Structure for UE
-typedef struct {
+typedef struct PHY_VARS_UE_s {
   /// \brief Module ID indicator for this instance
   uint8_t Mod_id;
   /// \brief Component carrier ID for this PHY instance

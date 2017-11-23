@@ -3553,7 +3553,7 @@ void ue_pmch_procedures(PHY_VARS_UE *ue, UE_rxtx_proc_t *proc,int eNB_id,int abs
          ue->dlsch_MCH[0]->harq_processes[0]->G,
          ue->pdsch_vars_MCH[0]->llr[0],0,nr_tti_rx<<1);
 
-  ret = dlsch_decoding(ue,
+  ret = dlsch_decoding_mthread(ue,eNB_id,
            ue->pdsch_vars_MCH[0]->llr[0],
            &ue->frame_parms,
            ue->dlsch_MCH[0],
@@ -3968,12 +3968,13 @@ void ue_dlsch_procedures(PHY_VARS_UE *ue,
       LOG_I(PHY,"start turbo decode for CW 0 for AbsSubframe %d.%d / %d  --> G  %d \n", frame_rx, nr_tti_rx, harq_pid, dlsch0->harq_processes[harq_pid]->G);
       LOG_I(PHY,"start turbo decode for CW 0 for AbsSubframe %d.%d / %d  --> Kmimo  %d \n", frame_rx, nr_tti_rx, harq_pid, dlsch0->Kmimo);
       LOG_I(PHY,"start turbo decode for CW 0 for AbsSubframe %d.%d / %d  --> Pdcch Sym  %d \n", frame_rx, nr_tti_rx, harq_pid, ue->pdcch_vars[ue->current_thread_id[nr_tti_rx]][eNB_id]->num_pdcch_symbols);
+
 #endif
 
 #if UE_TIMING_TRACE
       start_meas(&ue->dlsch_decoding_stats[ue->current_thread_id[nr_tti_rx]]);
 #endif
-      ret = dlsch_decoding(ue,
+      ret = dlsch_decoding_mthread(ue,eNB_id,
 			   pdsch_vars->llr[0],
 			   &ue->frame_parms,
 			   dlsch0,
@@ -4039,7 +4040,7 @@ void ue_dlsch_procedures(PHY_VARS_UE *ue,
           start_meas(&ue->dlsch_decoding_stats[ue->current_thread_id[nr_tti_rx]]);
 #endif
 
-          ret1 = dlsch_decoding(ue,
+          ret1 = dlsch_decoding_mthread(ue,eNB_id,
                   pdsch_vars->llr[1],
                   &ue->frame_parms,
                   dlsch1,
@@ -5711,4 +5712,21 @@ void phy_procedures_UE_lte(PHY_VARS_UE *ue,UE_rxtx_proc_t *proc,uint8_t eNB_id,u
   } // slot
 }
 
+//extern int oai_exit;
+
+extern void *dlsch_td_thread(void*);
+
+void init_dlsch_td_thread(PHY_VARS_UE *UE,pthread_attr_t *attr_td) {
+
+  UE_proc_t *proc = &UE->proc;
+
+  proc->tdp.UE = UE;
+  proc->instance_cnt_td         = -1;
+
+  pthread_mutex_init( &proc->mutex_td, NULL);
+  pthread_cond_init( &proc->cond_td, NULL);
+
+  pthread_create(&proc->pthread_td, attr_td, dlsch_td_thread, (void*)&proc->tdp);
+
+}
 
