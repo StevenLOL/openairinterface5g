@@ -22,7 +22,7 @@ void mexDlschChannelCompensation( int nlhs, mxArray *plhs[],
   /* Declare */
   int *H,*y;
   int *dl_ch_estimates_ext[4*4];
-  int *rxdataF_ext[4*4];
+  int *rxdataF_ext[4];
   int *ymf, *hmag, *hmagb;
   int *dl_ch_mag[4*4],*dl_ch_magb[4*4];
   int *rxdataF_comp[4*4];

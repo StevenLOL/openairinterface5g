@@ -55,7 +55,7 @@ void mexGetTbs( int nlhs, mxArray *plhs[],
 
   tmp = mxGetField(prhs[0],0,"nb_rb");
   if (tmp == NULL) {
-    mexErrMsgTxt("Non-existing field 'nb_rb' in input argument 2.");
+    mexErrMsgTxt("Non-existing field 'nb_rb' in input argument 1.");
   } else {
     nb_rb = (unsigned char) mxGetScalar(tmp);
   }

@@ -41,30 +41,32 @@ simparms.dl_power_offset= 1; % no 3dB power offset
 simparms.nb_slots = 14;
 simparms.nb_re_per_symbol = simparms.nb_rb*12;
 simparms.nb_re_per_frame = simparms.nb_slots*simparms.nb_re_per_symbol;
-simparms.frame_errors = zeros(length(simparms.snr),2);
-simparms.BER = zeros(length(simparms.snr),2);
-simparms.Errtot = zeros(length(simparms.snr),2);
 simparms.tseeds = SetTausSeed(1); % taus seeds
 simparms.Nsoft = 1827072;
 
 % Turbo decoder: set the pointer to the td tables allocated by init_td()
 DlschDecodingInit();
 % Init codewords
-simparms.codeword(1) = InitCodeword(simparms,mcs(1));
+simparms.cw = InitCodeword(simparms,mcs(1));
 simparms.first_symbol_flag= 1;
 
 
 end
 
-function codeword = InitCodeword(simparms,mcs)
+function cw = InitCodeword(simparms,mcs)
 
 % Constellation
 j = sqrt(-1);
 amp = 1/32;
-Q4 =  amp*[ 1+j,  1- j,  -1+j, -1-j]./sqrt(2);
-Q16 = amp*[ 1+j,  1+3*j,  3+j,  3+3*j,  1-j,  1-3*j,  3-j,  3-3*j,...
+rho_a_b_q15=512 % this is in Q15
+rho_a_b=0.0156 % this is in normal scale
+ONE_OVER_SQRT_2_Q15 = (1/(sqrt(2)))*(2^15)
+QPSK_gain_q15=floor(rho_a_b_q15*ONE_OVER_SQRT_2_Q15/(2^15));
+QPSK_gain=rho_a_b*(1/sqrt(2));
+Q4 = QPSK_gain*[ 1+j,  1- j,  -1+j, -1-j];
+Q16 = rho_a_b*[ 1+j,  1+3*j,  3+j,  3+3*j,  1-j,  1-3*j,  3-j,  3-3*j,...
            -1+j, -1+3*j, -3+j, -3+3*j, -1-j, -1-3*j, -3-j, -3-3*j]./sqrt(10);
-Q64 = amp*[ 3+3*j, 3+j, 1+3*j, 1+  j, 3+5*j, 3+7*j, 1+5*j, 1+7*j,...
+Q64 = rho_a_b*[ 3+3*j, 3+j, 1+3*j, 1+  j, 3+5*j, 3+7*j, 1+5*j, 1+7*j,...
 	        5+3*j, 5+j, 7+  j, 7+3*j, 5+5*j, 5+7*j, 7+5*j, 7+7*j,...
 	        3-3*j, 3-j, 1-3*j, 1-  j, 3-5*j, 3-7*j, 1-5*j, 1-7*j,...
 	        5-3*j, 5-j, 7-3*j, 7-  j, 5-5*j, 5-7*j, 7-5*j, 7-7*j,...
@@ -74,34 +76,37 @@ Q64 = amp*[ 3+3*j, 3+j, 1+3*j, 1+  j, 3+5*j, 3+7*j, 1+5*j, 1+7*j,...
 	       -5-3*j,-5-j,-7-3*j,-7-  j,-5-5*j,-5-7*j,-7-5*j,-7-7*j]./sqrt(42);
 
 if (mcs <= 9)
-		codeword.mod_order = 2;
-		codeword.base2 = [2 1];
-		codeword.const = Q4;
+		cw.mod_order = 2;
+		cw.base2 = [2 1];
+		cw.const = Q4;
+        cw.scale_coef=QPSK_gain;
 		
 elseif (mcs <= 16)			
-		codeword.mod_order = 4;
-		codeword.base2 = [8 4 2 1];
-		codeword.const = Q16;
+		cw.mod_order = 4;
+		cw.base2 = [8 4 2 1];
+		cw.const = Q16;
+        cw.scale_coef=rho_a_b*sqrt(4/sqrt(10));
 		
-elseif (mcs <= 27)
-		codeword.mod_order = 6;
-		codeword.base2 = [32 16 8 4 2 1];
-		codeword.const = Q64;
+elseif (mcs <= 28)
+		cw.mod_order = 6;
+		cw.base2 = [32 16 8 4 2 1];
+		cw.const = Q64;
+        cw.scale_coef=rho_a_b*sqrt(6/sqrt(42));
 		
 else
 		error('invalid MCS: %d\n', mcs);
 		
 end
 
-codeword.mcs = mcs;
+cw.mcs = mcs;
 
-codeword.Kmimo = 2;
-codeword.harq_pid = 0; % First HARQ round
-codeword.Mdlharq = 1;  % Number of HARQ rounds
-codeword.rvidx = 0;
-codeword.round = 0;
-codeword.Ndi = 1;
-codeword.G = simparms.nb_re*codeword.mod_order;%*codeword.Nl; % Number of softbits
-codeword.TBS = GetTbs(simparms, codeword);
+cw.Kmimo = 2;
+cw.harq_pid = 0; % First HARQ round
+cw.Mdlharq = 1;  % Number of HARQ rounds
+cw.rvidx = 0;
+cw.round = 0;
+cw.Ndi = 1;
+cw.G = simparms.nb_re*cw.mod_order;%*codeword.Nl; % Number of softbits
+cw.TBS = GetTbs(simparms, cw)
 
 end

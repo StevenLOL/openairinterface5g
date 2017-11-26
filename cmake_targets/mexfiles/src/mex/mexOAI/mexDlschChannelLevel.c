@@ -100,19 +100,26 @@ void mexDlschChannelLevel
   plhs[0] = mxCreateNumericMatrix(4,4, mxINT32_CLASS, mxREAL);
   avg = (int*) mxGetPr(plhs[0]);
 
-#ifdef DEBUG_CHANNEL_LEVEL
-  mexPrintf("Rx = %d\n", eNB->frame_parms.nb_antennas_rx);
-  mexPrintf("Tx = %d\n", eNB->frame_parms.nb_antenna_ports_eNB);
-  for (ii=0; ii<eNB->frame_parms.nb_antennas_rx*eNB->frame_parms.nb_antenna_ports_eNB; ++ii){
-    mexPrintf("Ch_Ests = %d\n", *dl_ch_estimates_ext[ii]);
-  }
-#endif
-
     /* Algo */
   dlsch_channel_level(dl_ch_estimates_ext,
                       &eNB->frame_parms,
                       avg,
                       symbol,
                       eNB->frame_parms.N_RB_DL);
+
+  #ifdef DEBUG_CHANNEL_LEVEL
+    /* Algo */
+  mexPrintf("Rx = %d\n", eNB->frame_parms.nb_antennas_rx);
+  mexPrintf("Tx = %d\n", eNB->frame_parms.nb_antenna_ports_eNB);
+  for (ii=0; ii<eNB->frame_parms.nb_antennas_rx*eNB->frame_parms.nb_antenna_ports_eNB; ++ii)
+  {
+    mexPrintf("Avg %d = %d\n", ii, avg[ii]);
+    mexPrintf("Ch_Ests %d = %d\n", ii, *dl_ch_estimates_ext[ii]);
+  }
+  mexPrintf("Number of REs = %d\n", nb_re_per_frame);
+  mexPrintf("Sym_Mod = %d\n", symbol);
+  mexPrintf("No_RB = %d\n", frame_parms->N_RB_DL);
+  #endif
+
   mxFree(eNB);
 }

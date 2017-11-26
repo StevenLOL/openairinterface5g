@@ -29,13 +29,18 @@ void mexDlschSISOLLR( int nlhs, mxArray *plhs[],
   int nb_re_per_symbol,i;
   mxArray *tmp;
   PHY_VARS_UE *ue;
+  int len, len2;
+  int len_mod4;
 
-  if(nrhs!=4)
-    mexErrMsgTxt("4 inputs required.");
+
+
+
+  if(nrhs!=5)
+    mexErrMsgTxt("5 inputs required.");
   else if(nlhs > 1)
     mexErrMsgTxt("Too many output arguments.");
-  else if(!mxIsStruct(prhs[2]))
-    mexErrMsgTxt("3 input must be a structure.");
+  else if(!mxIsStruct(prhs[3]))
+    mexErrMsgTxt("4 input must be a structure.");
 
   if(!mxIsInt16(prhs[0]))
     mexErrMsgTxt("First argument must belong to Int16 class.");
@@ -43,46 +48,50 @@ void mexDlschSISOLLR( int nlhs, mxArray *plhs[],
   if(!mxIsInt16(prhs[1]))
     mexErrMsgTxt("Second argument must belong to Int16 class.");
 
+  if(!mxIsInt16(prhs[2]))
+    mexErrMsgTxt("Third argument must belong to Int16 class.");
+
   ue = mxCalloc(1,sizeof(PHY_VARS_UE));
 
   /* Allocate input */
   ymf0 = (short*) mxGetData(prhs[0]);
   hmag0 = (short*) mxGetData(prhs[1]);
-  symbol = (unsigned char) mxGetScalar(prhs[3]);
+  hmagb = (short*) mxGetData(prhs[2]);
+  symbol = (unsigned char) mxGetScalar(prhs[4]);
 
-  tmp = mxGetField(prhs[2],0,"codeword");
+  tmp = mxGetField(prhs[3],0,"cw");
   if (tmp == NULL) {
-    mexErrMsgTxt("Non-existing field 'codeword' in input argument 3");
+    mexErrMsgTxt("Non-existing field 'cw' in input argument 4");
   } else {
-    tmp = mxGetField(mxGetField(prhs[2],0,"codeword"),0,"mod_order");
+    tmp = mxGetField(mxGetField(prhs[3],0,"cw"),0,"mod_order");
     if (tmp == NULL) {
-      mexErrMsgTxt("Non-existing field 'mod_order' in input argument 3 'codeword(1)'.");
+      mexErrMsgTxt("Non-existing field 'mod_order' in input argument 4 'cw'.");
     } else {
       mod_order = (unsigned char) mxGetScalar(tmp);
     }
   }
 
-  tmp = mxGetField(prhs[2],0,"nb_rb");
+  tmp = mxGetField(prhs[3],0,"nb_rb");
   if (tmp == NULL) {
-    mexErrMsgTxt("Non-existing field 'nb_rb' in input argument 3");
+    mexErrMsgTxt("Non-existing field 'nb_rb' in input argument 4");
   } else {
     ue->frame_parms.N_RB_DL = (unsigned char) mxGetScalar(tmp);
   }
-  tmp = mxGetField(prhs[2],0,"nb_antennas_rx");
+  tmp = mxGetField(prhs[3],0,"nb_antennas_rx");
   if (tmp == NULL) {
-    mexErrMsgTxt("Non-existing field 'nb_antennas_rx' in input argument 3.");
+    mexErrMsgTxt("Non-existing field 'nb_antennas_rx' in input argument 4.");
   } else {
     ue->frame_parms.nb_antennas_rx = (unsigned char) mxGetScalar(tmp);
   }
-  tmp = mxGetField(prhs[2],0,"nb_antennas_tx");
+  tmp = mxGetField(prhs[3],0,"nb_antennas_tx");
   if (tmp == NULL) {
-    mexErrMsgTxt("Non-existing field 'nb_antennas_tx' in input argument 3.");
+    mexErrMsgTxt("Non-existing field 'nb_antennas_tx' in input argument 4.");
   } else {
     ue->frame_parms.nb_antennas_tx = (unsigned char) mxGetScalar(tmp);
   }
-  tmp = mxGetField(prhs[2],0,"Ncp");
+  tmp = mxGetField(prhs[3],0,"Ncp");
   if (tmp == NULL) {
-    mexErrMsgTxt("Non-existing field 'Ncp' in input argument 3.");
+    mexErrMsgTxt("Non-existing field 'Ncp' in input argument 4.");
   } else {
     ue->frame_parms.Ncp = (unsigned char) mxGetScalar(tmp);
   }
@@ -111,31 +120,66 @@ void mexDlschSISOLLR( int nlhs, mxArray *plhs[],
     mexPrintf("i=%d\n",i);
     mexPrintf("ymf0 = %d\n",ymf0[i]);
     mexPrintf("hmag0 = %d\n",hmag0[i]);
+    mexPrintf("hmagb = %d\n",hmagb[i]);
   }
 #endif
-
   //16 bit aligned memory allocation with guard samples
-  llr_16 = (short *) malloc16((mod_order*nb_re_per_symbol+LLR_GUARD)*sizeof(short));
-
+  //llr_16 = (short *) calloc(1,(mod_order*nb_re_per_symbol+LLR_GUARD)*sizeof(short));
+ llr_16 = (short *) malloc16((mod_order*nb_re_per_symbol+LLR_GUARD)*sizeof(short));
     /* Algo */
   switch (mod_order) {
     case 2 :
       qpsk_llr(ymf0, llr_16, nb_re_per_symbol);
       break;
     case 4 :
-      qam16_qam16(ymf0, 0, hmag0, 0, llr_16, 0, nb_re_per_symbol);
+      len = nb_re_per_symbol;
+      len_mod4 = len&3;
+      //printf("len_mod4=%d\n", len_mod4);
+      len>>=2;  // length in quad words (4 REs)
+      //printf("len>>=2=%d\n", len);
+      len+=(len_mod4==0 ? 0 : 1);
+
+      qam16_llr(ymf0,
+                hmag0,
+                llr_16,
+                len);
       break;
     case 6 :
-      qam64_qam64(ymf0, 0, hmag0, 0, llr_16, 0, nb_re_per_symbol);
+      len = nb_re_per_symbol;
+      len_mod4 =len&3;
+      len2=len>>2;  // length in quad words (4 REs)
+      len2+=((len_mod4==0)?0:1);
+
+      qam64_llr(ymf0,
+                hmag0,
+                hmagb,
+                llr_16,
+                len2);
       break;
     default :
       mexErrMsgTxt("Unknown mod_order.");
       break;
   }
 
+#ifdef DEBUG_SISO_LLR
+  for (i=0;i<(mod_order*nb_re_per_symbol);i++) {
+    mexPrintf("llr_16 [%d]=%d\n",i, llr_16[i]);
+  }
+  for (i=0;i<(mod_order*nb_re_per_symbol);i++) {
+    mexPrintf("llr [%d]=%d\n",i, llr[i]);
+  }
+#endif
    // copy just valid LLRs to output
   memcpy((void*) llr, (void *) llr_16, mod_order*nb_re_per_symbol*sizeof(short));
 
+#ifdef DEBUG_SISO_LLR
+   for (i=0;i<(mod_order*nb_re_per_symbol);i++) {
+    mexPrintf("llr [%d]=%d\n",i, llr[i]);
+  }
+#endif
+
   mxFree(ue);
+
   free(llr_16);
+
 }

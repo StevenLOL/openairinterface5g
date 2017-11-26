@@ -56,7 +56,7 @@
 
 // maximum of 3 segments before each coding block if data length exceeds 6144 bits.
 
-#define MAX_NUM_DLSCH_SEGMENTS 16
+#define MAX_NUM_DLSCH_SEGMENTS 64
 #define MAX_NUM_ULSCH_SEGMENTS MAX_NUM_DLSCH_SEGMENTS
 #define MAX_DLSCH_PAYLOAD_BYTES (MAX_NUM_DLSCH_SEGMENTS*768)
 #define MAX_ULSCH_PAYLOAD_BYTES (MAX_NUM_ULSCH_SEGMENTS*768)
@@ -246,7 +246,7 @@ typedef struct {
   /// TX buffers for UE-spec transmission (antenna ports 5 or 7..14, prior to precoding)
   int32_t *txdataF[8];
   /// beamforming weights for UE-spec transmission (antenna ports 5 or 7..14), for each codeword, maximum 4 layers?
-  int32_t **ue_spec_bf_weights[4]; 
+  int32_t **ue_spec_bf_weights[4];
   /// dl channel estimates (estimated from ul channel estimates)
   int32_t **calib_dl_ch_estimates;
   /// Allocated RNTI (0 means DLSCH_t is not currently used)
