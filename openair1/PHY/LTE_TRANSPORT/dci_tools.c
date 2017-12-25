@@ -5322,7 +5322,7 @@ void prepare_dl_decoding_format1_1A(DCI_format_t dci_format,
     pdlsch0_harq->DCINdi = ndi1;
     pdlsch0_harq->mcs    = mcs1;
     pdlsch0_harq->rvidx  = rv1;
-    pdlsch0_harq->nb_rb  = NPRB;
+    pdlsch0_harq->nb_rb  = nb_rb_alloc;//NPRB;
 
     pdlsch0_harq->codeword     = 0;
     pdlsch0_harq->Nl           = 1;

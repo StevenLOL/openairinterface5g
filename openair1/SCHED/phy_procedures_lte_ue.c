@@ -45,7 +45,7 @@
 #include "SCHED/phy_procedures_emos.h"
 #endif
 
-#define DEBUG_PHY_PROC
+//#define DEBUG_PHY_PROC
 
 #ifndef PUCCH
 #define PUCCH
@@ -3305,7 +3305,7 @@ int ue_pdcch_procedures(uint8_t eNB_id,PHY_VARS_UE *ue,UE_rxtx_proc_t *proc,uint
   ue->dlsch_SI_received[eNB_id]++;
 
 
-  LOG_I(PHY,"[UE  %d] Frame %d, subframe %d : Generate UE DLSCH SI_RNTI format 1%s\n",ue->Mod_id,frame_rx,subframe_rx,dci_alloc_rx[i].format==format1A?"A":"C");
+  //LOG_D(PHY,"[UE  %d] Frame %d, subframe %d : Generate UE DLSCH SI_RNTI format 1%s\n",ue->Mod_id,frame_rx,subframe_rx,dci_alloc_rx[i].format==format1A?"A":"C");
   //dump_dci(&ue->frame_parms, &dci_alloc_rx[i]);
 
       }
@@ -3936,6 +3936,7 @@ void ue_dlsch_procedures(PHY_VARS_UE *ue,
 						  frame_rx,
 						  subframe_rx,
 						  ue->transmission_mode[eNB_id]<7?0:ue->transmission_mode[eNB_id]);
+      AssertFatal(dlsch0->harq_processes[harq_pid]->G > 0, "G is %d\n",dlsch0->harq_processes[harq_pid]->G);
 #if UE_TIMING_TRACE
       start_meas(&ue->dlsch_unscrambling_stats);
 #endif
