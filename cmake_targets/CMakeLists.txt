@@ -176,7 +176,8 @@ set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,${CMAKE_CU
 # these changes are related to hardcoded path to include .h files
 add_definitions(-DCMAKER)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g -DMALLOC_CHECK_=3")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -g -DMALLOC_CHECK_=3 -O2")
+#set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -g -DMALLOC_CHECK_=3 -O2")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -g -DMALLOC_CHECK_=3")
 
 
 set(GIT_BRANCH        "UNKNOWN")
@@ -1023,6 +1024,17 @@ set(SCHED_SRC_UE
 )
 add_library(SCHED_UE_LIB ${SCHED_SRC_UE})
 
+set(SCHED_SRC_NR_UE
+  ${OPENAIR1_DIR}/SCHED_NR_UE/phy_procedures_nr_ue.c
+# ${OPENAIR1_DIR}/SCHED_NR_UE/phy_procedures_nr_common_ue.c
+  ${OPENAIR1_DIR}/SCHED_NR_UE/fapi_nr_ue_l1.c 
+  ${OPENAIR1_DIR}/SCHED_NR_UE/phy_frame_config_nr.c
+  ${OPENAIR1_DIR}/SCHED_NR_UE/harq_nr.c
+  ${OPENAIR1_DIR}/SCHED_NR_UE/pucch_uci_ue_nr.c
+  ${OPENAIR1_DIR}/SCHED_NR_UE/pucch_power_control_ue_nr.c 
+)
+add_library(SCHED_NR_UE_LIB ${SCHED_SRC_NR_UE})
+
 # nFAPI
 #################################
 set(NFAPI_COMMON_SRC
@@ -1468,6 +1480,7 @@ add_library(L2
 add_library(L2_UE
   ${L2_SRC_UE}
   ${MAC_SRC_UE}
+  ${MAC_NR_SRC_UE}
 )
 
 
@@ -2244,7 +2257,7 @@ add_executable(nr-uesoftmodem
 
 target_link_libraries (nr-uesoftmodem
   -Wl,--start-group
-  RRC_LIB S1AP_LIB S1AP_ENB GTPV1U SECU_CN SECU_OSA UTIL HASHTABLE SCTP_CLIENT UDP SCHED_RU_LIB SCHED_UE_LIB PHY_NR_UE PHY_COMMON PHY_UE PHY_RU LFDS L2_UE 
+  RRC_LIB NR_RRC_LIB S1AP_LIB S1AP_ENB GTPV1U SECU_CN SECU_OSA UTIL HASHTABLE SCTP_CLIENT UDP SCHED_RU_LIB SCHED_UE_LIB SCHED_NR_UE_LIB PHY_NR_UE PHY_COMMON PHY_UE PHY_RU LFDS NR_L2_UE 
   ${MSC_LIB} ${RAL_LIB} ${NAS_UE_LIB} ${ITTI_LIB} ${FLPT_MSG_LIB} ${ASYNC_IF_LIB} LFDS7
   -Wl,--end-group z dl)
 
@@ -2279,7 +2292,7 @@ add_executable(nr-uesoftmodem-nos1
 
 target_link_libraries (nr-uesoftmodem-nos1
   -Wl,--start-group
-  RRC_LIB S1AP_LIB S1AP_ENB GTPV1U SECU_CN SECU_OSA UTIL HASHTABLE SCTP_CLIENT UDP SCHED_RU_LIB SCHED_UE_LIB PHY_NR_UE PHY_COMMON PHY_UE PHY_RU LFDS L2_UE 
+  RRC_LIB S1AP_LIB S1AP_ENB GTPV1U SECU_CN SECU_OSA UTIL HASHTABLE SCTP_CLIENT UDP SCHED_RU_LIB SCHED_UE_LIB SCHED_NR_UE_LIB PHY_NR_UE PHY_COMMON PHY_UE PHY_RU LFDS L2_UE 
   ${MSC_LIB} ${RAL_LIB} ${NAS_UE_LIB} ${ITTI_LIB} ${FLPT_MSG_LIB} ${ASYNC_IF_LIB} LFDS7
   -Wl,--end-group z dl)
 
