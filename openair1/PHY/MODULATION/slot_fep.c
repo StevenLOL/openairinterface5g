@@ -181,7 +181,8 @@ int slot_fep_pbch(PHY_VARS_NR_UE *ue,
   }
 
   if (ue->perfect_ce == 0) {
-    if ((l>0) && (l<4)) {
+
+    if ((l>4) && (l<8)) {
       for (aa=0; aa<frame_parms->nb_antenna_ports_eNB; aa++) {
 
 #ifdef DEBUG_FEP

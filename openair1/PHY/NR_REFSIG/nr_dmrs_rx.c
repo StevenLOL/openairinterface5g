@@ -50,11 +50,63 @@ int wt1[8][2] = {{1,1},{1,1},{1,1},{1,1},{1,-1},{1,-1},{1,-1},{1,-1}};
 int wf2[12][2] = {{1,1},{1,-1},{1,1},{1,-1},{1,1},{1,-1},{1,1},{1,1},{1,1},{1,-1},{1,1},{1,1}};
 int wt2[12][2] = {{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{1,-1},{1,-1},{1,-1},{1,-1},{1,-1},{1,-1}};
 
-//short nr_mod_table[14] = {0,0,-23170,-23170,23170,23170,-23170,-23170,-23170,23170,23170,-23170,23170,23170};
-  short nr_rx_mod_table[NR_MOD_TABLE_SIZE_SHORT] = {0,0,23170,-23170,-23170,23170,23170,-23170,23170,23170,-23170,-23170,-23170,23170};
-//short nr_mod_table[14] = {0,0,23170,23170,-23170,-23170,23170,23170,23170,-23170,-23170,23170,-23170,-23170};
-//extern short nr_mod_table[NR_MOD_TABLE_SIZE_SHORT];
+short nr_rx_mod_table[NR_MOD_TABLE_SIZE_SHORT] = {0,0,23170,-23170,-23170,23170,23170,-23170,23170,23170,-23170,-23170,-23170,23170};
 
+int nr_pdcch_dmrs_rx(PHY_VARS_NR_UE *ue,
+						uint8_t eNB_offset,
+						unsigned int Ns,
+						unsigned int nr_gold_pdcch[7][20][3][10],
+						int32_t *output,
+						unsigned short p,
+						int length_dmrs,
+						unsigned short nb_rb_coreset)
+{
+  int32_t qpsk[4],n;
+  int w,ind,l,ind_dword,ind_qpsk_symb,kp,k;
+  short pamp;
+
+  // Compute the correct pilot amplitude, sqrt_rho_b = Q3.13
+  pamp = ONE_OVER_SQRT2_Q15;
+
+  // This includes complex conjugate for channel estimation
+  ((short *)&qpsk[0])[0] = pamp;
+  ((short *)&qpsk[0])[1] = -pamp;
+  ((short *)&qpsk[1])[0] = -pamp;
+  ((short *)&qpsk[1])[1] = -pamp;
+  ((short *)&qpsk[2])[0] = pamp;
+  ((short *)&qpsk[2])[1] = pamp;
+  ((short *)&qpsk[3])[0] = -pamp;
+  ((short *)&qpsk[3])[1] = pamp;
+
+  if (p==2000) {
+	  // r_n from 38.211 7.4.1.3
+        for (n=0; n<nb_rb_coreset*3; n++) {
+        	for (l =0; l<length_dmrs; l++){
+        		for (kp=0; kp<3; kp++){
+
+        			ind = 3*n+kp;
+        			ind_dword = ind>>4;
+        			ind_qpsk_symb = ind&0xf;
+
+        			output[k] = qpsk[(nr_gold_pdcch[eNB_offset][Ns][l][ind_dword]>>(2*ind_qpsk_symb))&3];
+
+#ifdef DEBUG_DL_DMRS
+          LOG_I(PHY,"Ns %d, p %d, ind_dword %d, ind_qpsk_symbol %d\n",
+                Ns,p,idx_dword,idx_qpsk_symb);
+          LOG_I(PHY,"index = %d\n",(nr_gold_pdsch[0][Ns][lprime][ind_dword]>>(2*ind_qpsk_symb))&3);
+#endif
+
+          	  	  	k++;
+        		}
+        	}
+        }
+  } else {
+    LOG_E(PHY,"Illegal PDCCH DMRS port %d\n",p);
+  }
+
+  return(0);
+}
+>>>>>>> c3420b019... ue update symbol num synchro
 
 int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
 						unsigned int ncp,
