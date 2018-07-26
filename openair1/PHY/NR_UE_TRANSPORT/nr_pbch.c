@@ -486,11 +486,11 @@ void nr_pbch_quantize(int8_t *pbch_llr8,
   uint16_t i;
 
   for (i=0; i<len; i++) {
-    /*if (pbch_llr[i]>7)
-      pbch_llr8[i]=7;
-    else if (pbch_llr[i]<-8)
-      pbch_llr8[i]=-8;
-    else*/
+    if (pbch_llr[i]>127)
+      pbch_llr8[i]=127;
+    else if (pbch_llr[i]<-128)
+      pbch_llr8[i]=-128;
+    else
       pbch_llr8[i] = (char)(pbch_llr[i]);
 
   }
@@ -632,12 +632,12 @@ int nr_rx_pbch( PHY_VARS_NR_UE *ue,
     idx_demod = (sign(pbch_e_rx[i<<1])&1) ^ ((sign(pbch_e_rx[(i<<1)+1])&1)<<1);
     demod_pbch_e[i<<1] = nr_demod_table[(idx_demod)<<1];
     demod_pbch_e[(i<<1)+1] = nr_demod_table[((idx_demod)<<1)+1];
-#ifdef DEBUG_PBCH
-    if (i<16){
+//#ifdef DEBUG_PBCH
+    if (i<32){
     printf("idx[%d]= %d\n", i , idx_demod);
     printf("sign[%d]= %d sign[%d]= %d\n", i<<1 , sign(pbch_e_rx[i<<1]), (i<<1)+1 , sign(pbch_e_rx[(i<<1)+1]));
     printf("demod_pbch_e[%d] r = %2.3f i = %2.3f\n", i<<1 , demod_pbch_e[i<<1], demod_pbch_e[(i<<1)+1]);}
-#endif
+//#endif
   }
 
   //un-scrambling

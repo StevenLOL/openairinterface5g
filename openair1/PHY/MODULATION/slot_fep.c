@@ -121,6 +121,7 @@ int slot_fep_pbch(PHY_VARS_NR_UE *ue,
                frame_parms->ofdm_symbol_size*sizeof(int));
 
       if ((rx_offset&7)!=0) {  // if input to dft is not 256-bit aligned, issue for size 6,15 and 25 PRBs
+		  printf("not 256 bits aligned\n");
         memcpy((void *)tmp_dft_in,
                (void *)&common_vars->rxdata[aa][rx_offset % frame_length_samples],
                frame_parms->ofdm_symbol_size*sizeof(int));
@@ -142,11 +143,11 @@ int slot_fep_pbch(PHY_VARS_NR_UE *ue,
       rx_offset += (frame_parms->ofdm_symbol_size+nb_prefix_samples)*l;// +
       //                   (frame_parms->ofdm_symbol_size+nb_prefix_samples)*(l-1);
 
-#ifdef DEBUG_FEP
+//#ifdef DEBUG_FEP
       //  if (ue->frame <100)
       LOG_I(PHY,"slot_fep: frame %d: slot %d, symbol %d, nb_prefix_samples %d, nb_prefix_samples0 %d, slot_offset %d, subframe_offset %d, sample_offset %d,rx_offset %d, frame_length_samples %d\n", ue->proc.proc_rxtx[(Ns>>1)&1].frame_rx,Ns, symbol,
           nb_prefix_samples,nb_prefix_samples0,slot_offset,subframe_offset,sample_offset,rx_offset,frame_length_samples);
-#endif
+//#endif
 
       if (rx_offset > (frame_length_samples - frame_parms->ofdm_symbol_size))
         memcpy((void *)&common_vars->rxdata[aa][frame_length_samples],
