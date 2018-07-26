@@ -648,7 +648,7 @@ int nr_rx_pbch( PHY_VARS_NR_UE *ue,
 //#ifdef DEBUG_PBCH
     for (i=0; i<16; i++){
     printf("unscrambling demod_pbch_e[%d] r = %2.3f i = %2.3f\n", i<<1 , demod_pbch_e[i<<1], demod_pbch_e[(i<<1)+1]);}
-#endif
+//#endif
 		
   //polar decoding de-rate matching
   decoderState = polar_decoder(demod_pbch_e, pbch_a_b, &frame_parms->pbch_polar_params, decoderListSize, aPrioriArray, pathMetricAppr);

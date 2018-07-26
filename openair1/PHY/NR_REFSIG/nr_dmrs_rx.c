@@ -106,7 +106,7 @@ int nr_pdcch_dmrs_rx(PHY_VARS_NR_UE *ue,
 
   return(0);
 }
->>>>>>> c3420b019... ue update symbol num synchro
+
 
 int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
 						unsigned int ncp,
