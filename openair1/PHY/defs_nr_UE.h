@@ -181,7 +181,6 @@ typedef enum {          /* Type for Radio Network Temporary Identifier */
 
 #endif
 
->>>>>>> b2e49fd... nr ue : integration pucch_uci and unit tests
 /// Context data structure for RX/TX portion of subframe processing
 typedef struct {
   /// index of the current UE RX/TX proc
