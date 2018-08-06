@@ -107,15 +107,14 @@ int nr_pdcch_dmrs_rx(PHY_VARS_NR_UE *ue,
   return(0);
 }
 
-
 int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
-						unsigned int ncp,
+						uint8_t eNB_offset,
 						unsigned int Ns,
 						unsigned int nr_gold_pdsch[2][20][2][21],
 						int32_t *output,
 						unsigned short p,
 						int length_dmrs,
-						unsigned short nb_pdsch_rb)
+						unsigned short nb_rb_pdsch)
 {
   int32_t qpsk[4],nqpsk[4],*qpsk_p, n;
   int w,mprime,ind,l,ind_dword,ind_qpsk_symb,kp,lp, config_type, k;
@@ -129,7 +128,7 @@ int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
   printf("dmrs config type %d port %d\n", config_type, p);
 
   // Compute the correct pilot amplitude, sqrt_rho_b = Q3.13
-  pamp = 23170; //ONE_OVER_SQRT2_Q15;
+  pamp = ONE_OVER_SQRT2_Q15;
 
   // This includes complex conjugate for channel estimation
   ((short *)&qpsk[0])[0] = pamp;
@@ -157,10 +156,9 @@ int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
       LOG_E(PHY,"Bad PDSCH DMRS config type %d\n", config_type);
 
   if ((p>=1000) && (p<((config_type==0) ? 1008 : 1012))) {
-      if (/*ue->frame_parms.Ncp == NORMAL*/ncp ==0) {
 
         // r_n from 38.211 7.4.1.1
-        for (n=0; n<nb_pdsch_rb*((config_type==0) ? 3:2); n++) {
+        for (n=0; n<nb_rb_pdsch*((config_type==0) ? 3:2); n++) {
         	for (lp =0; lp<length_dmrs; lp++){
         		for (kp=0; kp<2; kp++){
         			w = (wf[p-1000][kp])*(wt[p-1000][lp]);
@@ -170,7 +168,7 @@ int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
         			ind_dword = ind>>4;
         			ind_qpsk_symb = ind&0xf;
 
-        			output[k] = qpsk_p[(ue->nr_gold_pdsch[0][Ns][lp][ind_dword]>>(2*ind_qpsk_symb))&3];
+        			output[k] = qpsk_p[(nr_gold_pdsch[0][Ns][lp][ind_dword]>>(2*ind_qpsk_symb))&3];
 
 
 #ifdef DEBUG_DL_DMRS
@@ -183,9 +181,6 @@ int nr_pdsch_dmrs_rx(PHY_VARS_NR_UE *ue,
         		}
         	}
         }
-      } else {
-        LOG_E(PHY,"extended cp not supported for PDSCH DMRS yet\n");
-      }
   } else {
     LOG_E(PHY,"Illegal p %d PDSCH DMRS port\n",p);
   }
