@@ -19,26 +19,29 @@
  *      contact@openairinterface.org
  */
 
-#ifndef __PHY_INTERFACE_VARS_H__
-#define __PHY_INTERFACE_VARS_H__
+/* \file fapi_nr_ue_l1.c
+ * \brief functions for FAPI L1 interface
+ * \author R. Knopp, K.H. HSU
+ * \date 2018
+ * \version 0.1
+ * \company Eurecom / NTUST
+ * \email: knopp@eurecom.fr, kai-hsiang.hsu@eurecom.fr
+ * \note
+ * \warning
+ */
 
-//#include "SIMULATION/PHY_EMULATION/spec_defs.h"
-#include "defs.h"
+#ifndef __FAPI_NR_UE_L1_H__
+#define __FAPI_NR_UE_L1_H__
 
-#ifdef PHY_EMUL
-#include "SIMULATION/PHY_EMULATION/DEVICE_DRIVER/defs.h"
-#include "SIMULATION/simulation_defs.h"
+#include "NR_IF_Module.h"
+
+/**\brief NR UE FAPI-like P7 messages, scheduled response from L2 indicating L1
+   \param scheduled_response including transmission config(dl_config, ul_config) and data transmission (tx_req)*/
+int8_t nr_ue_scheduled_response(nr_scheduled_response_t *scheduled_response);
+
+/**\brief NR UE FAPI-like P5 message, physical configuration from L2 to configure L1
+   \param scheduled_response including transmission config(dl_config, ul_config) and data transmission (tx_req)*/
+int8_t nr_ue_phy_config_request(nr_phy_config_t *phy_config);
+
+
 #endif
-
-
-unsigned int mac_debug;
-
-//MAC_xface *mac_xface;
-
-//MACPHY_PARAMS MACPHY_params;
-
-unsigned int mac_registered;
-
-
-#endif
-

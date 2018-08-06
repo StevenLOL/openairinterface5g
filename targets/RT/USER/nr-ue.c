@@ -33,16 +33,17 @@
 
 #include "rt_wrapper.h"
 
-#include "LAYER2/MAC/mac.h"
-#include "RRC/LTE/rrc_extern.h"
+#include "LAYER2/NR_MAC_UE/mac.h"
+//#include "RRC/LTE/rrc_extern.h"
 #include "PHY_INTERFACE/phy_interface_extern.h"
 
 #undef MALLOC //there are two conflicting definitions, so we better make sure we don't use it at all
 //#undef FRAME_LENGTH_COMPLEX_SAMPLES //there are two conflicting definitions, so we better make sure we don't use it at all
 
+#include "fapi_nr_ue_l1.h"
 #include "PHY/phy_extern_nr_ue.h"
-#include "LAYER2/MAC/mac_extern.h"
-#include "LAYER2/MAC/mac_proto.h"
+#include "LAYER2/NR_MAC_UE/mac_proto.h"
+#include "RRC/NR_UE/rrc_proto.h"
 
 #include "SCHED_NR/extern.h"
 //#ifndef NO_RAT_NR
@@ -213,13 +214,22 @@ void init_thread(int sched_runtime, int sched_deadline, int sched_fifo, cpu_set_
 
 void init_UE(int nb_inst)
 {
-  int inst;
-  for (inst=0; inst < nb_inst; inst++) {
-    //    UE->rfdevice.type      = NONE_DEV;
-    PHY_VARS_NR_UE *UE = PHY_vars_UE_g[inst][0];
-    LOG_I(PHY,"Initializing memory for UE instance %d (%p)\n",inst,PHY_vars_UE_g[inst]);
-        PHY_vars_UE_g[inst][0] = init_nr_ue_vars(NULL,inst,0);
+    int inst;
+    NR_UE_MAC_INST_t *mac_inst;
+    for (inst=0; inst < nb_inst; inst++) {
+        //    UE->rfdevice.type      = NONE_DEV;
+        PHY_VARS_NR_UE *UE = PHY_vars_UE_g[inst][0];
+        LOG_I(PHY,"Initializing memory for UE instance %d (%p)\n",inst,PHY_vars_UE_g[inst]);
+            PHY_vars_UE_g[inst][0] = init_nr_ue_vars(NULL,inst,0);
 
+        AssertFatal((UE->if_inst = nr_ue_if_module_init(inst)) != NULL, "can not initial IF module\n");
+        nr_l3_init_ue();
+        nr_l2_init_ue();
+        
+        mac_inst = get_mac_inst(0);
+        mac_inst->if_module = UE->if_inst;
+        UE->if_inst->scheduled_response = nr_ue_scheduled_response;
+        UE->if_inst->phy_config_request = nr_ue_phy_config_request;
 
     AssertFatal(0 == pthread_create(&UE->proc.pthread_ue,
                                     &UE->proc.attr_ue,
@@ -613,6 +623,23 @@ static void *UE_thread_rxn_txnp4(void *arg) {
 #endif
         if (UE->mac_enabled==1) {
 
+            //  trigger L2 to run ue_scheduler thru IF module
+            //  [TODO] mapping right after NR initial sync
+            if(1)
+            if(UE->if_inst != NULL && UE->if_inst->ul_indication != NULL){
+                UE->ul_indication.module_id = 0;
+                UE->ul_indication.gNB_index = 0;
+                UE->ul_indication.cc_id = 0;
+
+                //  [TODO] mapping right after NR initial sync
+                //UE->ul_indication.frame = ; 
+                //UE->ul_indication.slot = ;
+                
+                UE->if_inst->ul_indication(&UE->ul_indication);
+            }
+
+
+
 #ifdef NEW_MAC
           ret = mac_xface->ue_scheduler(UE->Mod_id,
                                           proc->frame_rx,
@@ -674,7 +701,7 @@ static void *UE_thread_rxn_txnp4(void *arg) {
         if ((subframe_select( &UE->frame_parms, proc->subframe_tx) == SF_S) &&
                 (UE->frame_parms.frame_type == TDD))
             if (UE->mode != loop_through_memory)
-                phy_procedures_UE_S_TX(UE,0,0,no_relay);
+                //phy_procedures_UE_S_TX(UE,0,0,no_relay);
         updateTimes(current, &t3, 10000, timing_proc_name);
 
         if (pthread_mutex_lock(&proc->mutex_rxtx) != 0) {
@@ -734,7 +761,7 @@ void *UE_thread(void *arg) {
     init_UE_threads(UE);
 
 #ifdef NAS_UE
-    MessageDef *message_p;
+    //MessageDef *message_p;
     //message_p = itti_alloc_new_message(TASK_NAS_UE, INITIALIZE_MESSAGE);
     //itti_send_msg_to_task (TASK_NAS_UE, UE->Mod_id + NB_eNB_INST, message_p);
 #endif
@@ -1037,6 +1064,7 @@ void init_UE_threads(PHY_VARS_NR_UE *UE) {
 
 
 #ifdef OPENAIR2
+/*
 void fill_ue_band_info(void) {
 
     UE_EUTRA_Capability_t *UE_EUTRA_Capability = UE_rrc_inst[0].UECap->UE_EUTRA_Capability;
@@ -1063,7 +1091,7 @@ void fill_ue_band_info(void) {
                 break;
             }
     }
-}
+}*/
 #endif
 
 int setup_ue_buffers(PHY_VARS_NR_UE **phy_vars_ue, openair0_config_t *openair0_cfg) {

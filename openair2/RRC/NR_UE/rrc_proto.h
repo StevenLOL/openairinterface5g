@@ -19,17 +19,17 @@
  *      contact@openairinterface.org
  */
 
-/*! \file proto.h
+/* \file proto.h
  * \brief RRC functions prototypes for eNB and UE
- * \author Navid Nikaein and Raymond Knopp
- * \date 2010 - 2014
- * \email navid.nikaein@eurecom.fr
- * \version 1.0
- 
+ * \author R. Knopp, K.H. HSU
+ * \date 2018
+ * \version 0.1
+ * \company Eurecom / NTUST
+ * \email: knopp@eurecom.fr, kai-hsiang.hsu@eurecom.fr
+ * \note
+ * \warning
  */
-/** \addtogroup _rrc
- *  @{
- */
+
 #ifndef _RRC_PROTO_H_
 #define _RRC_PROTO_H_
 
@@ -58,7 +58,7 @@ int8_t openair_rrc_top_init_ue_nr(void);
    \param buffer  encoded NR-RRC-Connection-Reconfiguration/Secondary-Cell-Group-Config message.
    \param size    length of buffer*/
 //TODO check to use which one
-int8_t nr_rrc_ue_decode_rrcReconfiguration(const uint8_t *buffer, const uint32_t size);
+//int8_t nr_rrc_ue_decode_rrcReconfiguration(const uint8_t *buffer, const uint32_t size);
 int8_t nr_rrc_ue_decode_secondary_cellgroup_config(const uint8_t *buffer, const uint32_t size);
    
 
@@ -97,11 +97,11 @@ int8_t nr_rrc_ue_decode_NR_DL_DCCH_Message(const module_id_t module_id, const ui
    \param module_id  module id
    \param CC_id      component carrier id
    \param gNB_index  gNB index
-   \param frameP     pointer to frame for calculation
    \param channel    indicator for channel of the pdu
    \param pduP       pointer to pdu
    \param pdu_len    data length of pdu*/
-int8_t nr_mac_rrc_data_ind_ue(const module_id_t module_id, const int CC_id, const uint8_t gNB_index, const uint32_t *frameP, const channel_t channel, const uint8_t* pduP, const sdu_size_t pdu_len);
+int8_t nr_mac_rrc_data_ind_ue(const module_id_t module_id, const int CC_id, const uint8_t gNB_index, const channel_t channel, const uint8_t* pduP, const sdu_size_t pdu_len);
 
 /** @}*/
 #endif
+

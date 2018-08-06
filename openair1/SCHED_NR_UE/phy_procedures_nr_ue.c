@@ -60,8 +60,7 @@
 #define PUCCH
 #endif
 
-#include "LAYER2/NR_MAC_UE/extern.h"
-#include "LAYER2/NR_MAC_UE/defs.h"
+#include "LAYER2/NR_MAC_UE/mac_defs.h"
 #include "UTIL/LOG/log.h"
 
 #ifdef EMOS
@@ -416,45 +415,7 @@ uint8_t nr_is_SR_TXOp(PHY_VARS_NR_UE *ue,UE_nr_rxtx_proc_t *proc,uint8_t eNB_id)
   return(0);
 }
 
-uint8_t is_cqi_TXOp(PHY_VARS_NR_UE *ue,UE_nr_rxtx_proc_t *proc,uint8_t eNB_id)
-{
-  int nr_tti_tx = proc->nr_tti_tx;
-  int frame    = proc->frame_tx;
-  CQI_REPORTPERIODIC *cqirep = &ue->cqi_report_config[eNB_id].CQI_ReportPeriodic;
 
-  //LOG_I(PHY,"[UE %d][CRNTI %x] AbsSubFrame %d.%d Checking for CQI TXOp (cqi_ConfigIndex %d) isCQIOp %d\n",
-  //      ue->Mod_id,ue->pdcch_vars[eNB_id]->crnti,frame,nr_tti_rx,
-  //      cqirep->cqi_PMI_ConfigIndex,
-  //      (((10*frame + nr_tti_tx) % cqirep->Npd) == cqirep->N_OFFSET_CQI));
-
-  if (cqirep->cqi_PMI_ConfigIndex==-1)
-    return(0);
-  else if (((10*frame + nr_tti_tx) % cqirep->Npd) == cqirep->N_OFFSET_CQI)
-    return(1);
-  else
-    return(0);
-}
-uint8_t is_ri_TXOp(PHY_VARS_NR_UE *ue,UE_nr_rxtx_proc_t *proc,uint8_t eNB_id)
-{
-
-
-  int nr_tti_tx = proc->nr_tti_tx;
-  int frame    = proc->frame_tx;
-  CQI_REPORTPERIODIC *cqirep = &ue->cqi_report_config[eNB_id].CQI_ReportPeriodic;
-  int log2Mri = cqirep->ri_ConfigIndex/161;
-  int N_OFFSET_RI = cqirep->ri_ConfigIndex % 161;
-
-  //LOG_I(PHY,"[UE %d][CRNTI %x] AbsSubFrame %d.%d Checking for RI TXOp (ri_ConfigIndex %d) isRIOp %d\n",
-  //      ue->Mod_id,ue->pdcch_vars[eNB_id]->crnti,frame,nr_tti_tx,
-  //      cqirep->ri_ConfigIndex,
-  //      (((10*frame + nr_tti_tx + cqirep->N_OFFSET_CQI - N_OFFSET_RI) % (cqirep->Npd<<log2Mri)) == 0));
-  if (cqirep->ri_ConfigIndex==-1)
-    return(0);
-  else if (((10*frame + nr_tti_tx + cqirep->N_OFFSET_CQI - N_OFFSET_RI) % (cqirep->Npd<<log2Mri)) == 0)
-    return(1);
-  else
-    return(0);
-}
 
 void compute_cqi_ri_resources(PHY_VARS_NR_UE *ue,
                               NR_UE_ULSCH_t *ulsch,
@@ -6497,3 +6458,42 @@ void phy_procedures_UE_lte(PHY_VARS_NR_UE *ue,UE_nr_rxtx_proc_t *proc,uint8_t eN
 }
 #endif
 
+uint8_t is_cqi_TXOp(PHY_VARS_NR_UE *ue,UE_nr_rxtx_proc_t *proc,uint8_t eNB_id)
+{
+  int nr_tti_tx = proc->nr_tti_tx;
+  int frame    = proc->frame_tx;
+  CQI_REPORTPERIODIC *cqirep = &ue->cqi_report_config[eNB_id].CQI_ReportPeriodic;
+
+  //LOG_I(PHY,"[UE %d][CRNTI %x] AbsSubFrame %d.%d Checking for CQI TXOp (cqi_ConfigIndex %d) isCQIOp %d\n",
+  //      ue->Mod_id,ue->pdcch_vars[eNB_id]->crnti,frame,nr_tti_rx,
+  //      cqirep->cqi_PMI_ConfigIndex,
+  //      (((10*frame + nr_tti_tx) % cqirep->Npd) == cqirep->N_OFFSET_CQI));
+
+  if (cqirep->cqi_PMI_ConfigIndex==-1)
+    return(0);
+  else if (((10*frame + nr_tti_tx) % cqirep->Npd) == cqirep->N_OFFSET_CQI)
+    return(1);
+  else
+    return(0);
+}
+uint8_t is_ri_TXOp(PHY_VARS_NR_UE *ue,UE_nr_rxtx_proc_t *proc,uint8_t eNB_id)
+{
+
+
+  int nr_tti_tx = proc->nr_tti_tx;
+  int frame    = proc->frame_tx;
+  CQI_REPORTPERIODIC *cqirep = &ue->cqi_report_config[eNB_id].CQI_ReportPeriodic;
+  int log2Mri = cqirep->ri_ConfigIndex/161;
+  int N_OFFSET_RI = cqirep->ri_ConfigIndex % 161;
+
+  //LOG_I(PHY,"[UE %d][CRNTI %x] AbsSubFrame %d.%d Checking for RI TXOp (ri_ConfigIndex %d) isRIOp %d\n",
+  //      ue->Mod_id,ue->pdcch_vars[eNB_id]->crnti,frame,nr_tti_tx,
+  //      cqirep->ri_ConfigIndex,
+  //      (((10*frame + nr_tti_tx + cqirep->N_OFFSET_CQI - N_OFFSET_RI) % (cqirep->Npd<<log2Mri)) == 0));
+  if (cqirep->ri_ConfigIndex==-1)
+    return(0);
+  else if (((10*frame + nr_tti_tx + cqirep->N_OFFSET_CQI - N_OFFSET_RI) % (cqirep->Npd<<log2Mri)) == 0)
+    return(1);
+  else
+    return(0);
+}

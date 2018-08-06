@@ -19,74 +19,35 @@
  *      contact@openairinterface.org
  */
 
-/*! \file LAYER2/MAC/defs.h
-* \brief MAC data structures, constant, and function prototype
-* \author Navid Nikaein and Raymond Knopp
-* \date 2011
-* \version 0.5
-* \email navid.nikaein@eurecom.fr
-
-*/
-/** @defgroup _oai2  openair2 Reference Implementation
- * @ingroup _ref_implementation_
- * @{
+/* \file mac.h
+ * \brief MAC data structures, constant, and function prototype
+ * \author R. Knopp, K.H. HSU
+ * \date 2018
+ * \version 0.1
+ * \company Eurecom / NTUST
+ * \email: knopp@eurecom.fr, kai-hsiang.hsu@eurecom.fr
+ * \note
+ * \warning
  */
 
-/*@}*/
-
-#ifndef __LAYER2_MAC_DEFS_H__
-#define __LAYER2_MAC_DEFS_H__
-
-
+#ifndef __LAYER2_NR_UE_MAC_DEFS_H__
+#define __LAYER2_NR_UE_MAC_DEFS_H__
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "COMMON/platform_constants.h"
-#include "BCCH-BCH-Message.h"
-#include "RadioResourceConfigCommon.h"
-#include "RadioResourceConfigCommonSIB.h"
-#include "RadioResourceConfigDedicated.h"
-#include "MeasGapConfig.h"
-#include "SchedulingInfoList.h"
-#include "TDD-Config.h"
-#include "RACH-ConfigCommon.h"
-#include "MeasObjectToAddModList.h"
-#include "MobilityControlInfo.h"
-#if defined(Rel10) || defined(Rel14)
-#include "MBSFN-AreaInfoList-r9.h"
-#include "MBSFN-SubframeConfigList.h"
-#include "PMCH-InfoList-r9.h"
-#include "SCellToAddMod-r10.h"
-#endif
-#ifdef Rel14
-#include "SystemInformationBlockType1-v1310-IEs.h"
-#endif
-
-#include "nfapi_interface.h"
-#include "PHY_INTERFACE/IF_Module.h"
-
-#include "PHY/TOOLS/time_meas.h"
-
-#include "PHY/defs_common.h" // for PRACH_RESOURCES_t
-
-#include "targets/ARCH/COMMON/common_lib.h"
-
-//solve implicit declaration
-#include "PHY/LTE_ESTIMATION/lte_estimation.h"
-#include "PHY/LTE_TRANSPORT/transport_proto.h"
-#include "PHY/LTE_TRANSPORT/transport_common_proto.h"
-
-/** @defgroup _mac  MAC
- * @ingroup _oai2
- * @{
- */
-
-/*!\brief Values of BCCH logical channel (fake)*/
 #define NR_BCCH_DL_SCH 3			// SI
 
-/*!\brief Values of PCCH logical channel (fake) */
 #define NR_BCCH_BCH 5			// MIB
-/*@}*/
+
+/*!\brief UE layer 2 status */
+typedef enum {
+    CONNECTION_OK = 0,
+    CONNECTION_LOST,
+    PHY_RESYNCH,
+    PHY_HO_PRACH
+} NR_UE_L2_STATE_t;
+
+
 #endif /*__LAYER2_MAC_DEFS_H__ */
