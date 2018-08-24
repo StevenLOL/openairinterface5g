@@ -42,6 +42,8 @@
 #include "PHY/CODING/nrPolar_tools/nr_polar_dci_defs.h"
 #include "PHY/CODING/nrPolar_tools/nr_polar_uci_defs.h"
 #include "PHY/CODING/nrPolar_tools/nr_polar_pbch_defs.h"
+#include "PHY/CODING/coding_defs.h"
+#include "SIMULATION/TOOLS/sim.h"
 
 #define NR_POLAR_DECODER_LISTSIZE 8 //uint8_t
 #define NR_POLAR_DECODER_PATH_METRIC_APPROXIMATION 0 //uint8_t; 0 --> eq. (8a) and (11b), 1 --> eq. (9) and (12)
@@ -110,6 +112,12 @@ void polar_encoder_dci(uint32_t *in,
 					   uint32_t *out,
 					   t_nrPolar_paramsPtr polarParams,
 					   uint16_t n_RNTI);
+
+void polar_encoder_timing(uint32_t *in,
+						  uint32_t *out,
+						  t_nrPolar_paramsPtr polarParams,
+						  double cpuFreqGHz,
+						  FILE* logFile);
 
 int8_t polar_decoder(double *input,
 		 	 	 	 uint8_t *output,

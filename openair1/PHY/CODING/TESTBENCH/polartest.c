@@ -11,6 +11,7 @@
 #include "SIMULATION/TOOLS/sim.h"
 
 //#define DEBUG_DCI_POLAR_PARAMS
+#define DEBUG_POLAR_TIMING
 
 int main(int argc, char *argv[]) {
 
@@ -23,7 +24,6 @@ int main(int argc, char *argv[]) {
 
 	randominit(0);
 	crcTableInit();
-	uint32_t crc;
 	//Default simulation values (Aim for iterations = 1000000.)
 	int itr, iterations = 1000, arguments, polarMessageType = 0; //0=PBCH, 1=DCI, -1=UCI
 	double SNRstart = -20.0, SNRstop = 0.0, SNRinc= 0.5; //dB
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	int8_t decoderState=0, blockErrorState=0; //0 = Success, -1 = Decoding failed, 1 = Block Error.
 	uint16_t testLength = 0, coderLength = 0, blockErrorCumulative=0, bitErrorCumulative=0;
 	double timeEncoderCumulative = 0, timeDecoderCumulative = 0;
-	uint8_t aggregation_level, decoderListSize, pathMetricAppr;
+	uint8_t aggregation_level = 8, decoderListSize = 8, pathMetricAppr = 0;
 
 	while ((arguments = getopt (argc, argv, "s:d:f:m:i:l:a:")) != -1)
 	switch (arguments)
@@ -92,7 +92,12 @@ int main(int argc, char *argv[]) {
 
 	folderName=getenv("HOME");
 	strcat(folderName,"/Desktop/polartestResults");
+
+	#ifdef DEBUG_POLAR_TIMING
+	sprintf(fileName,"%s/TIMING_ListSize_%d_pmAppr_%d_Payload_%d_Itr_%d",folderName,decoderListSize,pathMetricAppr,testLength,iterations);
+	#else
 	sprintf(fileName,"%s/_ListSize_%d_pmAppr_%d_Payload_%d_Itr_%d",folderName,decoderListSize,pathMetricAppr,testLength,iterations);
+	#endif
 	strftime(currentTimeInfo, 25, "_%Y-%m-%d-%H-%M-%S.csv", localtime(&currentTime));
 	strcat(fileName,currentTimeInfo);
 
@@ -106,22 +111,26 @@ int main(int argc, char *argv[]) {
         fprintf(stderr,"[polartest.c] Problem creating file %s with fopen\n",fileName);
         exit(-1);
       }
-    fprintf(logFile,",SNR,nBitError,blockErrorState,t_encoder[us],t_decoder[us]\n");
 
-	//uint8_t *testInput = malloc(sizeof(uint8_t) * testLength); //generate randomly
-	//uint8_t *encoderOutput = malloc(sizeof(uint8_t) * coderLength);
-	uint32_t testInput[4], encoderOutput[4];
+    #ifdef DEBUG_POLAR_TIMING
+    fprintf(logFile,",timeEncoderCRCByte[us],timeEncoderCRCBit[us],timeEncoderInterleaver[us],timeEncoderBitInsertion[us],timeEncoder1[us],timeEncoder2[us],timeEncoderRateMatching[us],timeEncoderByte2Bit[us]\n");
+    #else
+    fprintf(logFile,",SNR,nBitError,blockErrorState,t_encoder[us],t_decoder[us]\n");
+    #endif
+
+	uint32_t *testInput = malloc(sizeof(uint32_t) * ceil(testLength / 32.0)); //generate randomly
+	uint32_t *encoderOutput = malloc(sizeof(uint32_t) * ceil(coderLength / 32.0));
 	memset(testInput,0,sizeof(testInput));
 	memset(encoderOutput,0,sizeof(encoderOutput));
 
 	double *modulatedInput = malloc (sizeof(double) * coderLength); //channel input
-
 	double *channelOutput  = malloc (sizeof(double) * coderLength); //add noise
 	uint32_t *estimatedOutput = malloc(sizeof(uint8_t) * testLength); //decoder output
 
 	t_nrPolar_paramsPtr nrPolar_params = NULL, currentPtr = NULL;
 	nr_polar_init(&nrPolar_params, polarMessageType, testLength, aggregation_level);
 #ifdef DEBUG_DCI_POLAR_PARAMS
+	uint32_t crc;
 	unsigned int poly24c = 0xb2b11700;
 	testInput[0]=0x01189400;
 	printf("testInput: [0]->0x%08x \t [1]->0x%08x \t [2]->0x%08x \t [3]->0x%08x\n",
@@ -145,6 +154,28 @@ int main(int argc, char *argv[]) {
 #endif
 
 	currentPtr = nr_polar_params(nrPolar_params, polarMessageType, testLength, aggregation_level);
+#ifdef DEBUG_POLAR_TIMING
+	for (SNR = SNRstart; SNR <= SNRstop; SNR += SNRinc) {
+		SNR_lin = pow(10, SNR / 10);
+		for (itr = 1; itr <= iterations; itr++) {
+			for (int j=0; j<ceil(testLength / 32.0); j++) {
+				for(int i=0; i<32; i++) {
+					testInput[j] |= ( ((uint32_t) (rand()%2)) &1);
+					testInput[j]<<=1;
+				}
+			}
+			printf("testInput: [0]->0x%08x \n", testInput[0]);
+			polar_encoder_timing(testInput, encoderOutput, currentPtr, cpu_freq_GHz, logFile);
+		}
+	}
+	fclose(logFile);
+	free(testInput);
+	free(encoderOutput);
+	free(modulatedInput);
+	free(channelOutput);
+	free(estimatedOutput);
+	return (0);
+#endif
 
 	// We assume no a priori knowledge available about the payload.
 	double aPrioriArray[currentPtr->payloadBits];

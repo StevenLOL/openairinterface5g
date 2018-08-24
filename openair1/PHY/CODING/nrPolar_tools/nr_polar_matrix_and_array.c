@@ -43,7 +43,10 @@ void nr_matrix_multiplication_uint8_t_1D_uint8_t_2D(uint8_t *matrix1, uint8_t **
 	}
 }
 
-uint8_t ***nr_alloc_uint8_t_3D_array(uint16_t xlen, uint16_t ylen, uint16_t zlen) {
+uint8_t ***nr_alloc_uint8_t_3D_array(uint16_t xlen,
+									 uint16_t ylen,
+									 uint16_t zlen)
+{
 	uint8_t ***output;
 	int i, j;
 
@@ -77,7 +80,10 @@ uint8_t ***nr_alloc_uint8_t_3D_array(uint16_t xlen, uint16_t ylen, uint16_t zlen
 	return output;
 }
 
-double ***nr_alloc_double_3D_array(uint16_t xlen, uint16_t ylen, uint16_t zlen) {
+double ***nr_alloc_double_3D_array(uint16_t xlen,
+								   uint16_t ylen,
+								   uint16_t zlen)
+{
 	double ***output;
 	int i, j;
 
@@ -111,7 +117,9 @@ double ***nr_alloc_double_3D_array(uint16_t xlen, uint16_t ylen, uint16_t zlen) 
 	return output;
 }
 
-uint8_t **nr_alloc_uint8_t_2D_array(uint16_t xlen, uint16_t ylen) {
+uint8_t **nr_alloc_uint8_t_2D_array(uint16_t xlen,
+									uint16_t ylen)
+{
 	uint8_t **output;
 	int i, j;
 
@@ -136,7 +144,10 @@ uint8_t **nr_alloc_uint8_t_2D_array(uint16_t xlen, uint16_t ylen) {
 	return output;
 }
 
-void nr_free_uint8_t_3D_array(uint8_t ***input, uint16_t xlen, uint16_t ylen) {
+void nr_free_uint8_t_3D_array(uint8_t ***input,
+							  uint16_t xlen,
+							  uint16_t ylen)
+{
 	int i, j;
 
 	for (i = 0; i < xlen; i++) {
@@ -148,12 +159,17 @@ void nr_free_uint8_t_3D_array(uint8_t ***input, uint16_t xlen, uint16_t ylen) {
 	free(input);
 }
 
-void nr_free_uint8_t_2D_array(uint8_t **input, uint16_t xlen) {
+void nr_free_uint8_t_2D_array(uint8_t **input,
+							  uint16_t xlen)
+{
 	for (int i = 0; i < xlen; i++) free(input[i]);
 	free(input);
 }
 
-void nr_free_double_3D_array(double ***input, uint16_t xlen, uint16_t ylen) {
+void nr_free_double_3D_array(double ***input,
+							 uint16_t xlen,
+							 uint16_t ylen)
+{
 	int i, j;
 
 	for (i = 0; i < xlen; i++) {
@@ -166,7 +182,10 @@ void nr_free_double_3D_array(double ***input, uint16_t xlen, uint16_t ylen) {
 }
 
 // Modified Bubble Sort.
-void nr_sort_asc_double_1D_array_ind(double *matrix, uint8_t *ind, uint8_t len) {
+void nr_sort_asc_double_1D_array_ind(double *matrix,
+									 uint8_t *ind,
+									 uint8_t len)
+{
 	uint8_t swaps;
 	double temp;
 	uint8_t tempInd;
