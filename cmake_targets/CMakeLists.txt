@@ -629,14 +629,23 @@ add_library(oai_mobipass MODULE ${TPLIB_MOBIPASS_SOURCE} )
 get_target_property(mobipas_cflags oai_mobipass COMPILE_FLAGS)
 set_target_properties(oai_mobipass PROPERTIES COMPILE_FLAGS "${mobipass_cflags} -fvisibility=hidden")
 
+# this one is for internal use at Eurecom and is not documented
 set(HWLIB_TCP_BRIDGE_SOURCE
   ${OPENAIR_TARGETS}/ARCH/tcp_bridge/tcp_bridge.c
   )
-add_library(oai_tcp_bridge MODULE ${HWLIB_TCP_BRIDGE_SOURCE} )
+add_library(tcp_bridge MODULE ${HWLIB_TCP_BRIDGE_SOURCE} )
 
-#get_target_property(tcp_bridge_cflags oai_tcp_bridge COMPILE_FLAGS)
-#set_target_properties(oai_tcp_bridge PROPERTIES COMPILE_FLAGS "${tcp_bridge_cflags} -fvisibility=hidden")
-set_target_properties(oai_tcp_bridge PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
+#get_target_property(tcp_bridge_cflags tcp_bridge COMPILE_FLAGS)
+#set_target_properties(tcp_bridge PROPERTIES COMPILE_FLAGS "${tcp_bridge_cflags} -fvisibility=hidden")
+set_target_properties(tcp_bridge PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
+
+# this one is to connect OAI eNB and OAI UE in the basic simulator
+# see targets/ARCH/tcp_bridge/README.tcp_bridge_oai for usage
+set(HWLIB_TCP_BRIDGE_OAI_SOURCE
+  ${OPENAIR_TARGETS}/ARCH/tcp_bridge/tcp_bridge_oai.c
+  )
+add_library(tcp_bridge_oai MODULE ${HWLIB_TCP_BRIDGE_OAI_SOURCE} )
+set_target_properties(tcp_bridge_oai PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
 
 ##########################################################
 
