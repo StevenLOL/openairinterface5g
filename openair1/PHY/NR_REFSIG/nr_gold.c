@@ -34,7 +34,7 @@ void nr_init_pbch_dmrs(PHY_VARS_gNB* gNB)
 
   Lmax = (fp->dl_CarrierFreq < 3e9)? 4:8;
   N_hf = (Lmax == 4)? 2:1;
-
+  // x2 compute by 7.4.1.4.1
   for (n_hf = 0; n_hf < N_hf; n_hf++) {
     for (l = 0; l < Lmax ; l++) {
       i_ssb = l & (Lmax-1);
@@ -55,12 +55,12 @@ void nr_init_pbch_dmrs(PHY_VARS_gNB* gNB)
 
 void nr_init_pdcch_dmrs(PHY_VARS_gNB* gNB, uint32_t Nid)
 {
-
+  
   uint32_t x1, x2;
   uint8_t reset;
   NR_DL_FRAME_PARMS *fp = &gNB->frame_parms;
   uint32_t ***pdcch_dmrs = gNB->nr_gold_pdcch_dmrs;
-
+  //x2 compute by 38.211 7.4.1.3.1
   for (uint8_t slot=0; slot<fp->slots_per_frame; slot++) {
     for (uint8_t symb=0; symb<fp->symbols_per_slot; symb++) {
 
@@ -75,3 +75,29 @@ void nr_init_pdcch_dmrs(PHY_VARS_gNB* gNB, uint32_t Nid)
   }
 
 }
+
+void nr_init_pdsch_dmrs(PHY_VARS_gNB* gNB, uint32_t Nid)
+{
+  
+  uint32_t x1, x2;
+  uint8_t reset;
+  int Nscid;
+  NR_DL_FRAME_PARMS *fp = &gNB->frame_parms;
+  uint32_t ***pdsch_dmrs = gNB->nr_gold_pdsch_dmrs;
+  //x2 compute by 38.211 7.4.1.1.1
+  Nscid = 0;
+  for (uint8_t slot=0; slot<fp->slots_per_frame; slot++) {
+    for (uint8_t symb=0; symb<fp->symbols_per_slot; symb++) {
+
+      reset = 1;
+      x2 = ((1<<17) * (slot*symb*slot+symb+1) * (Nid+1) *((Nid<<1)+Nscid))&(((uint32_t)1<<31)-1);
+
+      for (uint32_t n=0; n<NR_MAX_PDSCH_DMRS_INIT_LENGTH_DWORD; n++) {
+        pdsch_dmrs[slot][symb][n] = lte_gold_generic(&x1, &x2, reset);
+        reset = 0;
+      }
+    }  
+  }
+
+}
+
