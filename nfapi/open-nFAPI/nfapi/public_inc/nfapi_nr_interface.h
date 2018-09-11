@@ -111,8 +111,8 @@ typedef struct {
 typedef struct {
   nfapi_uint16_tlv_t  tx_antenna_ports;
   nfapi_uint16_tlv_t  rx_antenna_ports;
-  nfapi_uint16_tlv_t  dl_channel_bandwidth;
-  nfapi_uint16_tlv_t  ul_channel_bandwidth;  
+  nfapi_uint16_tlv_t  dl_carrier_bandwidth;
+  nfapi_uint16_tlv_t  ul_carrier_bandwidth;  
   nfapi_uint16_tlv_t  dl_BWP_carrierBandwidth;
   nfapi_uint16_tlv_t  ul_BWP_carrierBandwidth;
   nfapi_uint16_tlv_t  dl_locationAndBandwidth;
@@ -452,6 +452,10 @@ typedef struct {
 }nfapi_nr_dl_config_pch_pdu_rel15_t;
 
 typedef struct {
+  nfapi_nr_dl_config_bch_pdu_rel15_t bch_pdu_rel15;
+} nfapi_nr_dl_config_bch_pdu;
+
+typedef struct {
   
 }nfapi_nr_dl_config_nbch_pdu_rel15_t;
 
@@ -475,7 +479,7 @@ typedef struct {
 
   union {
   nfapi_nr_dl_config_dci_dl_pdu             dci_dl_pdu;
-  nfapi_nr_dl_config_bch_pdu_rel15_t        bch_pdu_rel15;
+  nfapi_nr_dl_config_bch_pdu                bch_pdu;
   nfapi_nr_dl_config_dlsch_pdu_rel15_t      dlsch_pdu_rel15;
   nfapi_nr_dl_config_pch_pdu_rel15_t        pch_pdu_rel15;
   nfapi_nr_dl_config_nbch_pdu_rel15_t       nbch_pdu_rel15;

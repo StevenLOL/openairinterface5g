@@ -39,7 +39,24 @@
 #define MAX_TURBO_ITERATIONS_MBSFN 8
 #define MAX_TURBO_ITERATIONS max_turbo_iterations
 
+typedef struct {
+  unsigned short nb_bits;
+  unsigned short f1;
+  unsigned short f2;
+} interleaver_TS_36_212_t;
+
+
 #define LTE_NULL 2
+
+typedef struct interleaver_codebook {
+  unsigned long nb_bits;
+  unsigned short f1;
+  unsigned short f2;
+  unsigned int beg_index;
+} t_interleaver_codebook;
+extern t_interleaver_codebook *f1f2mat;
+extern short *il_tb;
+
 
 /** @addtogroup _PHY_CODING_BLOCKS_
  * @{

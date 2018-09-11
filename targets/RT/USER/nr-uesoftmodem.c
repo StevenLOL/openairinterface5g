@@ -60,11 +60,9 @@
 #include "PHY/TOOLS/smbv.h"
 unsigned short config_frames[4] = {2,9,11,13};
 #endif
-#include "UTIL/LOG/log_extern.h"
-#include "UTIL/OTG/otg_tx.h"
-#include "UTIL/OTG/otg_externs.h"
-#include "UTIL/MATH/oml.h"
-#include "UTIL/LOG/vcd_signal_dumper.h"
+#include "common/utils/LOG/log.h"
+#include "common/utils/LOG/vcd_signal_dumper.h"
+
 #include "UTIL/OPT/opt.h"
 #include "enb_config.h"
 //#include "PHY/TOOLS/time_meas.h"
@@ -196,7 +194,7 @@ extern PHY_VARS_NR_UE* init_nr_ue_vars(NR_DL_FRAME_PARMS *frame_parms,
 
 int transmission_mode=1;
 int numerology = 0;
-/*
+
 int16_t           glog_level         = LOG_INFO;
 int16_t           glog_verbosity     = LOG_MED;
 int16_t           hw_log_level       = LOG_INFO;
@@ -213,7 +211,6 @@ int16_t           rrc_log_level      = LOG_INFO;
 int16_t           rrc_log_verbosity  = LOG_MED;
 int16_t           opt_log_level      = LOG_INFO;
 int16_t           opt_log_verbosity  = LOG_MED;
-*/
 
 # if defined(ENABLE_USE_MME)
 int16_t           gtpu_log_level     = LOG_DEBUG;
@@ -376,7 +373,7 @@ void help (void) {
   printf("  -V Enable VCD (generated file will be located atopenair_dump_eNB.vcd, read it with target/RT/USER/eNB.gtkw\n");
   printf("  -x Set the transmission mode, valid options: 1 \n");
   printf("  -E Apply three-quarter of sampling frequency, 23.04 Msps to reduce the data rate on USB/PCIe transfers (only valid for 20 MHz)\n");
-#if T_TRACER
+#if 0 //T_TRACER
     printf("  --T_port [port]    use given port\n");
     printf("  --T_nowait         don't wait for tracer, start immediately\n");
     printf("  --T_dont_fork      to ease debugging with gdb\n");
@@ -544,17 +541,18 @@ void *l2l1_task(void *arg) {
 
 extern int16_t dlsch_demod_shift;
 
-static void get_options(void) {
-  int CC_id;
-  int tddflag, nonbiotflag;
-  char *loopfile=NULL;
-  int dumpframe;
-  uint32_t online_log_messages;
-  uint32_t glog_level, glog_verbosity;
-  uint32_t start_telnetsrv;
+static void get_options (int argc, char **argv) {
+	  int CC_id;
+	  int tddflag, nonbiotflag;
+	  char *loopfile=NULL;
+	  int dumpframe;
+	  uint32_t online_log_messages;
+	  uint32_t glog_level, glog_verbosity;
+	  uint32_t start_telnetsrv;
+	  nfapi_nr_config_request_t *config[MAX_NUM_CCs];
 
-  paramdef_t cmdline_params[] =CMDLINE_PARAMS_DESC ;
-  paramdef_t cmdline_logparams[] =CMDLINE_LOGPARAMS_DESC ;
+	  paramdef_t cmdline_params[] = CMDLINE_PARAMS_DESC ;
+	  paramdef_t cmdline_logparams[] = CMDLINE_LOGPARAMS_DESC ;
 
   set_default_frame_parms(frame_parms);
   config_process_cmdline( cmdline_params,sizeof(cmdline_params)/sizeof(paramdef_t),NULL); 
@@ -570,99 +568,48 @@ static void get_options(void) {
       printf("Enabling OPT for wireshark for local interface");
   }
 
-  config_process_cmdline( cmdline_logparams,sizeof(cmdline_logparams)/sizeof(paramdef_t),NULL);
-  if(config_isparamset(cmdline_logparams,CMDLINE_ONLINELOG_IDX)) {
-      set_glog_onlinelog(online_log_messages);
-  }
-  if(config_isparamset(cmdline_logparams,CMDLINE_GLOGLEVEL_IDX)) {
-      set_glog(glog_level, -1);
-  }
-  if(config_isparamset(cmdline_logparams,CMDLINE_GLOGVERBO_IDX)) {
-      set_glog(-1, glog_verbosity);
-  }
-  if (start_telnetsrv) {
-     load_module_shlib("telnetsrv",NULL,0);
-  }
+	  config_process_cmdline( cmdline_logparams,sizeof(cmdline_logparams)/sizeof(paramdef_t),NULL);
+	  if(config_isparamset(cmdline_logparams,CMDLINE_ONLINELOG_IDX)) {
+	      set_glog_onlinelog(online_log_messages);
+	  }
+	  if(config_isparamset(cmdline_logparams,CMDLINE_GLOGLEVEL_IDX)) {
+	      set_glog(glog_level);
+	  }
+	  if (start_telnetsrv) {
+	     load_module_shlib("telnetsrv",NULL,0);
+	  }
 
-  paramdef_t cmdline_uemodeparams[] =CMDLINE_UEMODEPARAMS_DESC;
-  paramdef_t cmdline_ueparams[] =CMDLINE_UEPARAMS_DESC;
+	  paramdef_t cmdline_uemodeparams[] =CMDLINE_UEMODEPARAMS_DESC;
+	  paramdef_t cmdline_ueparams[] =CMDLINE_UEPARAMS_DESC;
 
 
-  config_process_cmdline( cmdline_uemodeparams,sizeof(cmdline_uemodeparams)/sizeof(paramdef_t),NULL);
-  config_process_cmdline( cmdline_ueparams,sizeof(cmdline_ueparams)/sizeof(paramdef_t),NULL);
-  if (loopfile != NULL) {
-      printf("Input file for hardware emulation: %s",loopfile);
-      mode=loop_through_memory;
-      input_fd = fopen(loopfile,"r");
-      AssertFatal(input_fd != NULL,"Please provide a valid input file\n");
-  }
+	  config_process_cmdline( cmdline_uemodeparams,sizeof(cmdline_uemodeparams)/sizeof(paramdef_t),NULL);
+	  config_process_cmdline( cmdline_ueparams,sizeof(cmdline_ueparams)/sizeof(paramdef_t),NULL);
+	  if (loopfile != NULL) {
+	      printf("Input file for hardware emulation: %s",loopfile);
+	      mode=loop_through_memory;
+	      input_fd = fopen(loopfile,"r");
+	      AssertFatal(input_fd != NULL,"Please provide a valid input file\n");
+	  }
 
-  if ( (cmdline_uemodeparams[CMDLINE_CALIBUERX_IDX].paramflags &  PARAMFLAG_PARAMSET) != 0) mode = rx_calib_ue;
-  if ( (cmdline_uemodeparams[CMDLINE_CALIBUERXMED_IDX].paramflags &  PARAMFLAG_PARAMSET) != 0) mode = rx_calib_ue_med;
-  if ( (cmdline_uemodeparams[CMDLINE_CALIBUERXBYP_IDX].paramflags &  PARAMFLAG_PARAMSET) != 0) mode = rx_calib_ue_byp;
-  if (cmdline_uemodeparams[CMDLINE_DEBUGUEPRACH_IDX].uptr)
-      if ( *(cmdline_uemodeparams[CMDLINE_DEBUGUEPRACH_IDX].uptr) > 0) mode = debug_prach;
-  if (cmdline_uemodeparams[CMDLINE_NOL2CONNECT_IDX].uptr)
-      if ( *(cmdline_uemodeparams[CMDLINE_NOL2CONNECT_IDX].uptr) > 0)  mode = no_L2_connect;
-  if (cmdline_uemodeparams[CMDLINE_CALIBPRACHTX_IDX].uptr) 
-      if ( *(cmdline_uemodeparams[CMDLINE_CALIBPRACHTX_IDX].uptr) > 0) mode = calib_prach_tx; 
-  if (dumpframe  > 0)  mode = rx_dump_frame;
-  
-  for (CC_id=0; CC_id<MAX_NUM_CCs; CC_id++) {
-    frame_parms[CC_id]->dl_CarrierFreq = downlink_frequency[0][0];
-  }
-  UE_scan=0;
-   
+	  if ( (cmdline_uemodeparams[CMDLINE_CALIBUERX_IDX].paramflags &  PARAMFLAG_PARAMSET) != 0) mode = rx_calib_ue;
+	  if ( (cmdline_uemodeparams[CMDLINE_CALIBUERXMED_IDX].paramflags &  PARAMFLAG_PARAMSET) != 0) mode = rx_calib_ue_med;
+	  if ( (cmdline_uemodeparams[CMDLINE_CALIBUERXBYP_IDX].paramflags &  PARAMFLAG_PARAMSET) != 0) mode = rx_calib_ue_byp;
+	  if (cmdline_uemodeparams[CMDLINE_DEBUGUEPRACH_IDX].uptr)
+	      if ( *(cmdline_uemodeparams[CMDLINE_DEBUGUEPRACH_IDX].uptr) > 0) mode = debug_prach;
+	  if (cmdline_uemodeparams[CMDLINE_NOL2CONNECT_IDX].uptr)
+	      if ( *(cmdline_uemodeparams[CMDLINE_NOL2CONNECT_IDX].uptr) > 0)  mode = no_L2_connect;
+	  if (cmdline_uemodeparams[CMDLINE_CALIBPRACHTX_IDX].uptr)
+	      if ( *(cmdline_uemodeparams[CMDLINE_CALIBPRACHTX_IDX].uptr) > 0) mode = calib_prach_tx;
 
-  if (tddflag > 0) {
-     for (CC_id=0; CC_id<MAX_NUM_CCs; CC_id++) 
-    	 frame_parms[CC_id]->frame_type = TDD;
-  }
+	  if ( !(CONFIG_ISFLAGSET(CONFIG_ABORT))  && (!(CONFIG_ISFLAGSET(CONFIG_NOOOPT))) ) {
+	      // Here the configuration file is the XER encoded UE capabilities
+	      // Read it in and store in asn1c data structures
+	      sprintf(uecap_xer,"%stargets/PROJECTS/GENERIC-LTE-EPC/CONF/UE_config.xml",getenv("OPENAIR_HOME"));
+	      printf("%s\n",uecap_xer);
+	      uecap_xer_in=1;
+	    } /* UE with config file  */
 
-  /*if (frame_parms[0]->N_RB_DL !=0) {
-      if ( frame_parms[0]->N_RB_DL < 6 ) {
-    	 frame_parms[0]->N_RB_DL = 6;
-    	 printf ( "%i: Invalid number of ressource blocks, adjusted to 6\n",frame_parms[0]->N_RB_DL);
-      }
-      if ( frame_parms[0]->N_RB_DL > 100 ) {
-    	 frame_parms[0]->N_RB_DL = 100;
-    	 printf ( "%i: Invalid number of ressource blocks, adjusted to 100\n",frame_parms[0]->N_RB_DL);
-      }
-      if ( frame_parms[0]->N_RB_DL > 50 && frame_parms[0]->N_RB_DL < 100 ) {
-    	 frame_parms[0]->N_RB_DL = 50;
-    	 printf ( "%i: Invalid number of ressource blocks, adjusted to 50\n",frame_parms[0]->N_RB_DL);
-      }
-      if ( frame_parms[0]->N_RB_DL > 25 && frame_parms[0]->N_RB_DL < 50 ) {
-    	 frame_parms[0]->N_RB_DL = 25;
-    	 printf ( "%i: Invalid number of ressource blocks, adjusted to 25\n",frame_parms[0]->N_RB_DL);
-      }
-      UE_scan = 0;
-      frame_parms[0]->N_RB_UL=frame_parms[0]->N_RB_DL;
-      for (CC_id=1; CC_id<MAX_NUM_CCs; CC_id++) {
-    	  frame_parms[CC_id]->N_RB_DL=frame_parms[0]->N_RB_DL;
-    	  frame_parms[CC_id]->N_RB_UL=frame_parms[0]->N_RB_UL;
-      }
-  }*/
-
-
-  for (CC_id=1;CC_id<MAX_NUM_CCs;CC_id++) {
-    	tx_max_power[CC_id]=tx_max_power[0];
-    	rx_gain[0][CC_id] = rx_gain[0][0];
-    	tx_gain[0][CC_id] = tx_gain[0][0];
-  }
-
-#if T_TRACER
-  paramdef_t cmdline_ttraceparams[] =CMDLINE_TTRACEPARAMS_DESC ;
-  config_process_cmdline( cmdline_ttraceparams,sizeof(cmdline_ttraceparams)/sizeof(paramdef_t),NULL);   
-#endif
-
-  if ( !(CONFIG_ISFLAGSET(CONFIG_ABORT))  && (!(CONFIG_ISFLAGSET(CONFIG_NOOOPT))) ) {
-    // Here the configuration file is the XER encoded UE capabilities
-    // Read it in and store in asn1c data structures
-    sprintf(uecap_xer,"%stargets/PROJECTS/GENERIC-LTE-EPC/CONF/UE_config.xml",getenv("OPENAIR_HOME"));
-    printf("%s\n",uecap_xer);
-    uecap_xer_in=1;
-  } /* UE with config file  */
 
 #if defined(OAI_USRP) || defined(CPRIGW) || defined(OAI_ADRV9371_ZC706)
     int clock_src;
@@ -670,7 +617,7 @@ static void get_options(void) {
 
 }
 
-#if T_TRACER
+#if 0 //T_TRACER
 int T_wait = 1;       /* by default we wait for the tracer */
 int T_port = 2021;    /* default port to listen to to wait for the tracer */
 int T_dont_fork = 0;  /* default is to fork, see 'T_init' to understand */
@@ -688,8 +635,8 @@ void set_default_frame_parms(NR_DL_FRAME_PARMS *frame_parms[MAX_NUM_CCs]) {
         config[CC_id]->subframe_config.numerology_index_mu.value =1;
         config[CC_id]->subframe_config.duplex_mode.value = 1; //FDD
         config[CC_id]->subframe_config.dl_cyclic_prefix_type.value = 0; //NORMAL
-        config[CC_id]->rf_config.dl_channel_bandwidth.value = 106;
-        config[CC_id]->rf_config.ul_channel_bandwidth.value = 106;
+        config[CC_id]->rf_config.dl_carrier_bandwidth.value = 106;
+        config[CC_id]->rf_config.ul_carrier_bandwidth.value = 106;
         config[CC_id]->rf_config.tx_antenna_ports.value = 1;
         config[CC_id]->rf_config.rx_antenna_ports.value = 1;
         config[CC_id]->sch_config.physical_cell_id.value = 0;
@@ -743,6 +690,71 @@ void set_default_frame_parms(NR_DL_FRAME_PARMS *frame_parms[MAX_NUM_CCs]) {
 
 }
 
+void set_default_frame_parms_single(nfapi_nr_config_request_t *config, NR_DL_FRAME_PARMS *frame_parms) {
+
+  //int CC_id;
+
+  //for (CC_id=0; CC_id<MAX_NUM_CCs; CC_id++) {
+        /* Set some default values that may be overwritten while reading options */
+        frame_parms = (NR_DL_FRAME_PARMS*) malloc(sizeof(NR_DL_FRAME_PARMS));
+        config = (nfapi_nr_config_request_t*) malloc(sizeof(nfapi_nr_config_request_t));
+        config->subframe_config.numerology_index_mu.value =1;
+        config->subframe_config.duplex_mode.value = 1; //FDD
+        config->subframe_config.dl_cyclic_prefix_type.value = 0; //NORMAL
+        config->rf_config.dl_carrier_bandwidth.value = 106;
+        config->rf_config.ul_carrier_bandwidth.value = 106;
+        config->rf_config.tx_antenna_ports.value = 1;
+        config->rf_config.rx_antenna_ports.value = 1;
+        config->sch_config.physical_cell_id.value = 0;
+
+        frame_parms->frame_type          = FDD;
+        frame_parms->tdd_config          = 3;
+        //frame_parms[CC_id]->tdd_config_S        = 0;
+        frame_parms->N_RB_DL             = 100;
+        frame_parms->N_RB_UL             = 100;
+        frame_parms->Ncp                 = NORMAL;
+        //frame_parms[CC_id]->Ncp_UL              = NORMAL;
+        frame_parms->Nid_cell            = 0;
+        //frame_parms[CC_id]->num_MBSFN_config    = 0;
+        frame_parms->nb_antenna_ports_eNB  = 1;
+        frame_parms->nb_antennas_tx      = 1;
+        frame_parms->nb_antennas_rx      = 1;
+
+        //frame_parms[CC_id]->nushift             = 0;
+
+        ///frame_parms[CC_id]->phich_config_common.phich_resource = oneSixth;
+        //frame_parms[CC_id]->phich_config_common.phich_duration = normal;
+    // UL RS Config
+        /*frame_parms[CC_id]->pusch_config_common.ul_ReferenceSignalsPUSCH.cyclicShift = 1;//n_DMRS1 set to 0
+        frame_parms[CC_id]->pusch_config_common.ul_ReferenceSignalsPUSCH.groupHoppingEnabled = 1;
+        frame_parms[CC_id]->pusch_config_common.ul_ReferenceSignalsPUSCH.sequenceHoppingEnabled = 0;
+        frame_parms[CC_id]->pusch_config_common.ul_ReferenceSignalsPUSCH.groupAssignmentPUSCH = 0;
+
+	frame_parms[CC_id]->pusch_config_common.n_SB = 1;
+	frame_parms[CC_id]->pusch_config_common.hoppingMode = 0;
+	frame_parms[CC_id]->pusch_config_common.pusch_HoppingOffset = 0;
+	frame_parms[CC_id]->pusch_config_common.enable64QAM = 0;
+		
+        frame_parms[CC_id]->prach_config_common.rootSequenceIndex=22;
+        frame_parms[CC_id]->prach_config_common.prach_ConfigInfo.zeroCorrelationZoneConfig=1;
+        frame_parms[CC_id]->prach_config_common.prach_ConfigInfo.prach_ConfigIndex=0;
+        frame_parms[CC_id]->prach_config_common.prach_ConfigInfo.highSpeedFlag=0;
+        frame_parms[CC_id]->prach_config_common.prach_ConfigInfo.prach_FreqOffset=0;*/
+
+        // NR: Init to legacy LTE 20Mhz params
+        frame_parms->numerology_index	= 0;
+        frame_parms->ttis_per_subframe	= 1;
+        frame_parms->slots_per_tti		= 2;
+
+        downlink_frequency[0][0] = 2680000000; // Use float to avoid issue with frequency over 2^31.
+        //downlink_frequency[CC_id][1] = downlink_frequency[CC_id][0];
+        //downlink_frequency[CC_id][2] = downlink_frequency[CC_id][0];
+        //downlink_frequency[CC_id][3] = downlink_frequency[CC_id][0];
+        //printf("Downlink for CC_id %d frequency set to %u\n", CC_id, downlink_frequency[CC_id][0]);
+
+    //}
+
+}
 void init_openair0(void);
 void init_openair0() {
 
@@ -884,9 +896,9 @@ int main( int argc, char **argv ) {
     logInit();
 
     // get options and fill parameters from configuration file
-    get_options (); //Command-line options, enb_properties
+    get_options (argc, argv); //Command-line options, enb_properties
 
-#if T_TRACER
+#if 0 //T_TRACER
     T_init(T_port, T_wait, T_dont_fork);
 #endif
 
@@ -896,7 +908,7 @@ int main( int argc, char **argv ) {
     //randominit (0);
     set_taus_seed (0);
 
-        printf("configuring for UE\n");
+    printf("configuring for UE\n");
 
         set_comp_log(HW,      LOG_DEBUG,  LOG_HIGH, 1);
         set_comp_log(PHY,     LOG_DEBUG,   LOG_HIGH, 1);
@@ -975,7 +987,10 @@ int main( int argc, char **argv ) {
       LOG_I(PHY,"Set nb_rx_antenna %d , nb_tx_antenna %d \n",frame_parms[CC_id]->nb_antennas_rx, frame_parms[CC_id]->nb_antennas_tx);
   
     //init_ul_hopping(frame_parms[CC_id]);
-    //phy_init_nr_top(frame_parms[CC_id]);
+    nr_init_frame_parms_ue(frame_parms[CC_id]);
+    printf("after init frame_parms %d\n",frame_parms[CC_id]->ofdm_symbol_size);
+    //   phy_init_top(frame_parms[CC_id]);
+    phy_init_nr_top(frame_parms[CC_id]);
   }
 
 
@@ -1154,9 +1169,6 @@ int main( int argc, char **argv ) {
             mac_xface->mrbch_phy_sync_failure (0, 0, 0);
     }*/
 
-	// init UE_PF_PO and mutex lock
-	pthread_mutex_init(&ue_pf_po_mutex, NULL);
-	memset (&UE_PF_PO[0][0], 0, sizeof(UE_PF_PO_t)*NUMBER_OF_UE_MAX*MAX_NUM_CCs);
 
 
     mlockall(MCL_CURRENT | MCL_FUTURE);
@@ -1169,13 +1181,13 @@ int main( int argc, char **argv ) {
 
   if (do_forms==1) {
     fl_initialize (&argc, argv, NULL, 0, 0);
-	
-	form_stats = create_form_stats_form();
-    fl_show_form (form_stats->stats_form, FL_PLACE_HOTSPOT, FL_FULLBORDER, "stats");
-    UE_id = 0;
-    form_ue[UE_id] = create_lte_phy_scope_ue();
-    sprintf (title, "NR DL SCOPE UE");
-    fl_show_form (form_ue[UE_id]->lte_phy_scope_ue, FL_PLACE_HOTSPOT, FL_FULLBORDER, title);
+
+         //form_stats = create_form_stats_form();
+         //fl_show_form (form_stats->stats_form, FL_PLACE_HOTSPOT, FL_FULLBORDER, "stats");
+       UE_id = 0;
+            form_ue[UE_id] = create_lte_phy_scope_ue();
+            sprintf (title, "LTE DL SCOPE UE");
+            fl_show_form (form_ue[UE_id]->lte_phy_scope_ue, FL_PLACE_HOTSPOT, FL_FULLBORDER, title);
 
             /*
             if (openair_daq_vars.use_ia_receiver) {

@@ -40,6 +40,7 @@
 #endif
 #include "assertions.h"
 
+#include "SCHED_NR_UE/harq_nr.h"
 
 //#define DEBUG_HARQ
 

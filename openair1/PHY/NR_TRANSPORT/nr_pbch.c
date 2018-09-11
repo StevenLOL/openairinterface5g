@@ -157,7 +157,7 @@ void nr_pbch_scrambling(NR_gNB_PBCH *pbch,
   // Scrambling is now done with offset (nushift*M)%32
   offset = (nushift*M)&0x1f;
 #ifdef DEBUG_PBCH_ENCODING
-  printf("Scrambling params: nushift %d M %d length %d bitwise %d offset %d\n", nushift, M, length, bitwise, offset);
+  printf("Scrambling params: nushift %d M %d length %d encoded %d offset %d\n", nushift, M, length, encoded, offset);
 #endif
 
   for (int i=0; i<length; i++) {
